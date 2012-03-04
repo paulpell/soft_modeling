@@ -1,0 +1,9 @@
+http://www.gamasutra.com/
+Here are some starting points for further exploration.
+
+    * OpenGL.org -- The official home of OpenGL on the World Wide Web, includes extensive links to documentation, specifications, and companies involved with OpenGL.
+    * GameTutorials.com -- introductory, slowly-building tutorials, similar to the NeHe tutorials
+    * OpenGL.org's tutorials collection
+    * LightHouse3D Tutorials -- intermediate tutorials on various OpenGL-related subjects
+    * Gamasutra -- professional-level tutorials, often on "cutting edge" subjects, generally well-written and easily followed code, note that a free registration is required for much of the content, also see their publisher's site, Gamedev.net, which has a decent resources section
+
