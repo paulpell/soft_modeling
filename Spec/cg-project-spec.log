@@ -1,16 +1,14 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (MiKTeX 2.8) (preloaded format=pdflatex 2009.11.5)  5 MAR 2012 19:39
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.8)  6 MAR 2012 00:28
 entering extended mode
-**D:/Dropbox/My*Dropbox/10-SS2012/Computer*Graphics/assignments/project/Spec/cg
--project-spec.tex
-
-("D:/Dropbox/My Dropbox/10-SS2012/Computer Graphics/assignments/project/Spec/cg
--project-spec.tex"
+ %&-line parsing enabled.
+**cg-project-spec.tex
+(./cg-project-spec.tex
 LaTeX2e <2009/09/24>
-Babel <v3.8l> and hyphenation patterns for english, dumylang, nohyphenation, ge
-rman, ngerman, german-x-2009-06-19, ngerman-x-2009-06-19, french, loaded.
-("D:\Programme\MiKTeX 2.8\tex\latex\base\article.cls"
+Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
+yphenation, loaded.
+(/usr/share/texmf-texlive/tex/latex/base/article.cls
 Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
-("D:\Programme\MiKTeX 2.8\tex\latex\base\size11.clo"
+(/usr/share/texmf-texlive/tex/latex/base/size11.clo
 File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count79
@@ -25,15 +23,15 @@ File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 \belowcaptionskip=\skip42
 \bibindent=\dimen102
 )
-("D:\Programme\MiKTeX 2.8\tex\latex\base\fontenc.sty"
+(/usr/share/texmf-texlive/tex/latex/base/fontenc.sty
 Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
 
-("D:\Programme\MiKTeX 2.8\tex\latex\base\t1enc.def"
+(/usr/share/texmf-texlive/tex/latex/base/t1enc.def
 File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
 LaTeX Font Info:    Redeclaring font encoding T1 on input line 43.
-))
-("D:\Dropbox\My Dropbox\10-SS2012\Computer Graphics\assignments\project\Spec\cg
--project-spec.aux")
+)) (./cg-project-spec.aux)
+\openout1 = `cg-project-spec.aux'.
+
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 38.
 LaTeX Font Info:    ... okay on input line 38.
 LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 38.
@@ -52,36 +50,31 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <8> on input line 39.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 39.
- [1
 
-{C:/ProgramData/MiKTeX/2.8/pdftex/config/pdftex.map}]
-[2]
-("D:\Dropbox\My Dropbox\10-SS2012\Computer Graphics\assignments\project\Spec\cg
--project-spec.bbl") [3]
-("D:\Dropbox\My Dropbox\10-SS2012\Computer Graphics\assignments\project\Spec\cg
--project-spec.aux") ) 
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2]
+(./cg-project-spec.bbl) [3] (./cg-project-spec.aux) ) 
 Here is how much of TeX's memory you used:
- 462 strings out of 495285
- 4932 string characters out of 3180738
- 49931 words of memory out of 3000000
- 3719 multiletter control sequences out of 15000+200000
+ 460 strings out of 495061
+ 4309 string characters out of 1182622
+ 49906 words of memory out of 3000000
+ 3695 multiletter control sequences out of 15000+50000
  14913 words of font info for 35 fonts, out of 3000000 for 9000
- 14 hyphenation exceptions out of 8191
- 21i,6n,19p,525b,235s stack positions out of 5000i,500n,10000p,200000b,50000s
- <C:\Users\terix\AppData\Local\MiKTeX\2.8\fonts\pk\ljfour\
-jknappen\ec\dpi600\ecti1095.pk> <C:\Users\terix\AppData\Local\MiKTeX\2.8\fonts\
-pk\ljfour\jknappen\ec\dpi600\ecbx1095.pk> <C:\Users\terix\AppData\Local\MiKTeX\
-2.8\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx1440.pk> <C:\Users\terix\AppData\Loc
-al\MiKTeX\2.8\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm1095.pk> <C:\Users\terix\A
-ppData\Local\MiKTeX\2.8\fonts\pk\ljfour\jknappen\ec\dpi600\ecti1200.pk> <C:\Use
-rs\terix\AppData\Local\MiKTeX\2.8\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm1200.p
-k> <C:\Users\terix\AppData\Local\MiKTeX\2.8\fonts\pk\ljfour\jknappen\ec\dpi600\
-ecrm2074.pk> <C:\Users\terix\AppData\Local\MiKTeX\2.8\fonts\pk\ljfour\jknappen\
-ec\dpi600\ecbx2074.pk> <C:\Users\terix\AppData\Local\MiKTeX\2.8\fonts\pk\ljfour
-\jknappen\ec\dpi600\ecti1728.pk>
-Output written on cg-project-spec.pdf (3 pages, 91411 bytes).
+ 28 hyphenation exceptions out of 8191
+ 21i,6n,19p,449b,235s stack positions out of 5000i,500n,10000p,200000b,50000s
+ </home/paulp/.texmf-var/f
+onts/pk/ljfour/jknappen/ec/ecti1095.600pk> </home/paulp/.texmf-var/fonts/pk/ljf
+our/jknappen/ec/ecbx1095.600pk> </home/paulp/.texmf-var/fonts/pk/ljfour/jknappe
+n/ec/ecbx1440.600pk> </home/paulp/.texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm10
+95.600pk> </home/paulp/.texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1200.600pk> <
+/home/paulp/.texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1200.600pk> </home/paulp
+/.texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm2074.600pk> </home/paulp/.texmf-var
+/fonts/pk/ljfour/jknappen/ec/ecbx2074.600pk> </home/paulp/.texmf-var/fonts/pk/l
+jfour/jknappen/ec/ecti1728.600pk>
+Output written on cg-project-spec.pdf (3 pages, 91790 bytes).
 PDF statistics:
- 278 PDF objects out of 1000 (max. 8388607)
+ 279 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,3 +1,45 @@
-This is BibTeX, Version 0.99cThe top-level auxiliary file: cg-project-spec.aux
+This is BibTeX, Version 0.99c (TeX Live 2009/Debian)
+The top-level auxiliary file: cg-project-spec.aux
 The style file: alpha.bst
 Database file #1: gc-bib.bib
+You've used 3 entries,
+            2543 wiz_defined-function locations,
+            573 strings with 4758 characters,
+and the built_in function-call counts, 948 in all, are:
+= -- 81
+> -- 46
+< -- 1
++ -- 14
+- -- 14
+* -- 53
+:= -- 173
+add.period$ -- 9
+call.type$ -- 3
+change.case$ -- 14
+chr.to.int$ -- 3
+cite$ -- 3
+duplicate$ -- 46
+empty$ -- 76
+format.name$ -- 18
+if$ -- 189
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 6
+newline$ -- 18
+num.names$ -- 9
+pop$ -- 27
+preamble$ -- 1
+purify$ -- 20
+quote$ -- 0
+skip$ -- 34
+stack$ -- 0
+substring$ -- 21
+swap$ -- 3
+text.length$ -- 1
+text.prefix$ -- 1
+top$ -- 0
+type$ -- 12
+warning$ -- 0
+while$ -- 8
+width$ -- 5
+write$ -- 38
