@@ -13,10 +13,10 @@ Vertex3D::Vertex3D() {
 	z = 0;
 }
 
-Vertex3D::Vertex3D(float x, float y, float z) {
+Vertex3D::Vertex3D(float x, float y, float z){
 	this->x = x;
 	this->y = y;
-	this->z = z;
+	this->z = z;	
 }
 
 Vertex3D::~Vertex3D() {

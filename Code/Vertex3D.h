@@ -6,10 +6,14 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+
 #include <stdlib.h>
 
-class Vertex3D {
+#include "Vector3D.h"
+
+class Vertex3D : public Vector3D {
 public:
+	// Con- und Destructor:
 	Vertex3D();
 	Vertex3D(float x, float y, float z);
 	virtual ~Vertex3D();

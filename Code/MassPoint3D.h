@@ -7,20 +7,21 @@
 
 #include "Vertex3D.h"
 #include "Vector3D.h"
-//#include "Force.h"
+
 
 class MassPoint3D : public Vertex3D {
 public:
-	MassPoint3D(); // TODO hmmm?
+	// Con- und Destructor:
+	MassPoint3D();
 	MassPoint3D(float x, float y, float z);
 	virtual ~MassPoint3D();
+
+
 
 	void addForce(Force *force);
 	void setAnchor(bool b);
 
 	void timeStep(float time);
-
-	// hlh
 
 protected:
 	float old_x, old_y, old_z;

@@ -22,7 +22,11 @@
 #include "Cube3D.h"
 
 #include "Camera.h"
+
 #include "Vertex3D.h"
+#include "Vector3D.h"
+
+
 #include "Surface3D.h"
 #include "Texture.h"
 

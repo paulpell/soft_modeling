@@ -4,15 +4,21 @@
 
 using namespace std;
 
-
-MassPoint3D::MassPoint3D() : Vertex3D(0, 0, 0){
+MassPoint3D::MassPoint3D(){
+	x = 0;
+	y = 0;
+	z = 0;	
 }
 
-MassPoint3D::MassPoint3D(float x, float y, float z) : Vertex3D(x, y, z) {
+MassPoint3D::MassPoint3D(float x, float y, float z){
+
+	this->x = x;
+	this->y = y;
+	this->z = z;
+
 	//forces = 1;
 	//forceList = new Force;
-
-	velocity = Vector3D(0, 0, 0);
+	//velocity = Vector3D(0, 0, 0);
 }
 
 MassPoint3D::~MassPoint3D(){
