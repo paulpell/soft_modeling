@@ -39,6 +39,12 @@
 #include "Spring.h"
 
 
+//#include "WorldObject.h"
+//#include "Rope.h"
+//Rope myRope;
+
+
+
 Camera myCamera;
 
 Surface3D aSurface;
@@ -46,50 +52,18 @@ Cube3D aCube;
 
 Spring mySpring; 
 
+
 bool isOrtho;
 
 
 void create()
 {
 
-	int ww = 500;
-	int wh = 330;
-
-	//Vertex3D a(0,0,0);
-	//Vertex3D b(0,wh/10,0);
-	//Vertex3D c(ww/10,wh/10,0);
-	//Vertex3D d(ww/10,0,0);
 
 	Texture texture2("cat.bmp", 128, 128);
-
-	//aSurface = Surface3D(a,b,c,d);
-
-	//aSurface.setColor(0.0,1.0,0);
-	//aSurface.setTexture(texture2);
-
-
-	//Force gravity(0, -1, 0, 9.8);
-
-	MassPoint3D pointA(1, 0, 0);
-	MassPoint3D pointB(3, 0, 0);
-	pointA.setAnchor(true);
-	//pointB.addForce(gravity);
-	
-	pointA.setSize(10);
-
-	mySpring = Spring(&pointA, &pointB, 1.0);
-	mySpring.setSize(10);
-
-
-
-
 	Vertex3D center(0,0,0);
-	aCube = Cube3D(center, 15);
-
-	//Texture texture("cat.bmp", 128, 128);
+	aCube = Cube3D(center, 25);
 	aCube.addTexture(texture2, 1);
-
-
 
 
 }
@@ -105,13 +79,11 @@ void init(void)
 
 	myCamera = Camera();
 	myCamera.XCoord = 5;
-	myCamera.YCoord = 5;	
-	myCamera.ZCoord = 5;
+	myCamera.YCoord = 2;	
+	myCamera.ZCoord = 6;
 	/*myCamera.currentXangle = 0;
 	myCamera.currentYangle = 0;
 	myCamera.currentZangle = 30;*/
-
-	create();
 
 
 	/*GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -154,23 +126,19 @@ void display(void)
 		glFrustum (-10, 10, -10, 10, 6, 500);
 	}
 
-
 	glEnable(GL_DEPTH_TEST);
-
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt ( myCamera.XCoord,myCamera.YCoord,myCamera.ZCoord , 0,0,0, 0,1,0 );
 
 
-	//aSurface.draw();
 	aCube.draw();
+
+	
+	// TODO iterate over all "objects" and paint them
 	mySpring.draw();
 
-
-	// makes a white 50x50x50 cube centered at origin	
-	//glColor3f (1.0, 1.0, 1.0);
-	//glutWireCube (1); 
 
 	//glMatrixMode(GL_PROJECTION);	
 	//glLoadIdentity();
@@ -265,7 +233,7 @@ void time(void){
 
 	if( (int)theTime % 100 == 0){
 		
-		// perform calculations on all WorldObjects	
+		// TODO perform calculations on all WorldObjects	
 		mySpring.timeStep( dt );
 	
 	}
@@ -275,44 +243,56 @@ void time(void){
 }
 
 
-int main(int argc, char** argv)
-{
-	
+void openGLrun(){
+	glutMainLoop();
+}
+
+int openGLinit(int argc, char** argv){
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize (600, 600);
 	glutInitWindowPosition (100, 100);
 	glutCreateWindow (argv[0]);
 
-
-
 	init ();
+	create();
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
-
-
 	glutIdleFunc(time);
 
 	glutKeyboardFunc(keyboard);
+}
 
-	glutMainLoop();
+
+
+
+
+
+
+int main(int argc, char** argv)
+{
 	
+	// Init & Create the 3D world:
+	openGLinit(argc, argv);
 	
-	/*Keyboard keyboard;
+	// Add initial objects and forces to our world:
+	//Force gravity(0, -9.8, 0);
+	Force gravity(0, -1, 0);
+	MassPoint3D start(0, 0, 0);
+	start.setAnchor(true);
+	MassPoint3D end(5, 0, 0);
+	end.addForce(&gravity);
 
-	Camera camera(keyboard);
+	mySpring = Spring(&start, &end, 1);
 
-	World3D world();
+	// Start and show the 3D world:
+	openGLrun();
 
-	world.init(argc,argv);
-	world.addCamera(Camera)
-	world.addObjects(Cube);
-
-	world.run();*/
+	//myRope = Rope(0, 0, 0,    5, 0, 0); 
+	//myRope.applyGeneral(gravity)
 	
 	return 0;
-
 }
 
 

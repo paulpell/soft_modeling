@@ -23,7 +23,7 @@ public:
 
 	void timeStep(float time);
 
-protected:
+
 	float old_x, old_y, old_z;
 	bool isAnchor;
 

@@ -27,10 +27,10 @@ void Vertex3D::setSize(int s){
 	this->size = s;
 }
 
-#include <iostream>
+//#include <iostream>
 
 void Vertex3D::draw(){
-	std::cout << "vertex3d draw" << std::endl;
+	//std::cout << "vertex3d draw" << std::endl;
 	// Warning: gl_Begin() has to come first
 	glPointSize(size); // TODO does this work here?
 	glVertex3f(x,y,z);

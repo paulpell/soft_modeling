@@ -26,6 +26,8 @@ MassPoint3D::~MassPoint3D(){
 
 void MassPoint3D::addForce(Force *f){
 
+	forcelist.push_front(f);
+
 }
 
 void MassPoint3D::setAnchor(bool b){
@@ -37,17 +39,23 @@ void MassPoint3D::timeStep(float time){
 
 	// compute overall force
 	Force temp(0.0, 0.0, 0.0);
-//	list<Force*>::iterator it, listend = forces.end();
-//	for (it = forces.begin(); it != listend; it++) {
-//		temp += *it;
-//	}
+	list<Force*>::iterator it, listend = forcelist.end();
+	for (it = forcelist.begin(); it != listend; it++) {
+		temp.x += (*it)->x;
+		temp.y += (*it)->y;
+		temp.z += (*it)->z;
+	}
 
 	// update velocity
-	//velocity += time* (temp->x / mass);
+	velocity.x += time * (temp.x / mass);
+	velocity.y += time * (temp.y / mass);
+	velocity.z += time * (temp.z / mass);
+
+	// TODO maybe store old location here
 
 	// update Coords
-	//x += time* velocity->x;
-	//y
-	//z
+	x += time* velocity.x;
+	y += time* velocity.y;
+	z += time* velocity.z;
 
 }
