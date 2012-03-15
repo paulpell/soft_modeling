@@ -56,14 +56,19 @@ Spring mySpring;
 bool isOrtho;
 
 
+GLfloat angle = 20;
+GLfloat angle2 = 30; 
+
+int moving, startx, starty;
+
 void create()
 {
 
 
-	Texture texture2("cat.bmp", 128, 128);
+	//Texture texture2("cat.bmp", 128, 128);
 	Vertex3D center(0,0,0);
-	aCube = Cube3D(center, 25);
-	aCube.addTexture(texture2, 1);
+	aCube = Cube3D(center, 30);
+	//aCube.addTexture(texture2, 1);
 
 
 }
@@ -133,6 +138,9 @@ void display(void)
 	gluLookAt ( myCamera.XCoord,myCamera.YCoord,myCamera.ZCoord , 0,0,0, 0,1,0 );
 
 
+	    glRotatef(angle2, 1.0, 0.0, 0.0);
+	    glRotatef(angle, 0.0, 1.0, 0.0);
+
 	aCube.draw();
 
 	
@@ -150,11 +158,11 @@ void display(void)
 	glutSwapBuffers();
 }
 
-void reshape(int w, int h)
+void reshape(int width, int height)
 {
 
-	glViewport (0, 0, 600, 600);
-
+	//glViewport (0, 0, 600, 600);
+   	 glViewport(0, 0, width, height);
 
 	/*glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -167,6 +175,35 @@ void reshape(int w, int h)
 
 }
 
+
+
+
+void
+mouse(int button, int state, int x, int y)
+{
+  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    moving = 1;
+    startx = x;
+    starty = y;
+  }
+  if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+    moving = 0;
+  }
+}
+
+
+void
+motion(int x, int y)
+{
+  if (moving) {
+    angle = angle + (x - startx);
+    angle2 = angle2 + (y - starty);
+    startx = x;
+    starty = y;
+    glutPostRedisplay();
+  }
+}
+
 void keyboard(unsigned char key, int x, int y)
 {
 	//Keyboard aKeyboard;
@@ -177,8 +214,7 @@ void keyboard(unsigned char key, int x, int y)
 		myCamera.XCoord += 1;
 	}
 	if (key == 'w'){
-		//myCamera.rotate_xaxis(20);
-		//return;
+		myCamera.XCoord += 1;
 	}
 	if (key == 'e'){
 		myCamera.XCoord -= 1;
@@ -186,24 +222,24 @@ void keyboard(unsigned char key, int x, int y)
 	
 
 	if (key == 'a'){
-		myCamera.YCoord += 1;
+		myCamera.ZCoord += 1;
 	}
 	if (key == 's'){
-		//myCamera.rotate_yaxis(10);
+		myCamera.XCoord -= 1;
 	}
 	if (key == 'd'){
-		myCamera.YCoord -= 1;
+		myCamera.ZCoord -= 1;
 	}
 
 
 	if (key == 'z'){
-		myCamera.ZCoord += 1;
+		myCamera.YCoord += 1;
 	}
 	if (key == 'x'){
 		//myCamera.currentZangle += 10;
 	}
 	if (key == 'c'){
-		myCamera.ZCoord -= 1;
+		myCamera.YCoord -= 1;
 	}
 
 
@@ -218,6 +254,7 @@ void keyboard(unsigned char key, int x, int y)
 
 	display();
 }
+
 
 
 float theTime = 0;
@@ -242,6 +279,12 @@ void time(void){
 
 }
 
+void visible(int vis) {
+  if (vis == GLUT_VISIBLE)
+    glutIdleFunc(time);
+  else
+    glutIdleFunc(NULL);
+}
 
 void openGLrun(){
 	glutMainLoop();
@@ -259,7 +302,11 @@ int openGLinit(int argc, char** argv){
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
-	glutIdleFunc(time);
+
+	glutMouseFunc(mouse);
+	glutMotionFunc(motion);
+
+	glutVisibilityFunc(visible);
 
 	glutKeyboardFunc(keyboard);
 }
@@ -281,10 +328,11 @@ int main(int argc, char** argv)
 	Force gravity(0, -1, 0);
 	MassPoint3D start(0, 0, 0);
 	start.setAnchor(true);
-	MassPoint3D end(5, 0, 0);
+	MassPoint3D end(20, 0, 0);
 	end.addForce(&gravity);
 
 	mySpring = Spring(&start, &end, 1);
+	mySpring.setSize(5);
 
 	// Start and show the 3D world:
 	openGLrun();

@@ -41,6 +41,9 @@ void Spring::setSize(int s){
 void Spring::draw(){
 	//std::cout << "spring draw" << std::endl;
 	glLineWidth(size);
+	glColor3f(1.0, 1.0, 1.0);
+	float mcolor[] = { 1, 1, 1, 1.0f };
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mcolor);
 	glBegin(GL_LINES);
 		start->draw();
 		end->draw();
