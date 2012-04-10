@@ -13,10 +13,10 @@ class Rope : public WorldObject {
 public:
 	// Con- and Destructor:
 	Rope();
-	Rope(float x, float y, float z, float dx, float dy, float dz);
+	Rope(MassPoint3D* start);
 
+	void addNode(MassPoint3D* next);
 
-	void draw();
 
 };
 

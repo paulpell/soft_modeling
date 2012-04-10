@@ -7,8 +7,15 @@ WorldObject::~WorldObject() {
 	// TODO
 }
 
-void WorldObject::draw(){
-	// TODO dont call
+void WorldObject::timeStep(float time){
 }
+
+void WorldObject::draw(){
+	list<Spring*>::iterator it, listend = springList.end();
+	for (it = springList.begin(); it != listend; it++) {
+		(*it)->draw();
+	}
+}
+
 
 

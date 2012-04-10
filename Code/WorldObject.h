@@ -8,6 +8,8 @@
 
 #include <list>
 
+using namespace std;
+
 class WorldObject { // abstract
 public:
 
@@ -22,9 +24,12 @@ public:
 	// 
 	void draw();
 
+	// 
+	void timeStep(float time);
+
 	// Properties:
-	std::list<Spring> springList;
-	std::list<MassPoint3D> pointList;
+	list<Spring*> springList;
+	list<MassPoint3D*> pointList;
 };
 
 #endif /* WORLDOBJECT_H_ */

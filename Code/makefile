@@ -19,7 +19,7 @@ EXEC = Space
 all: compile run	
 
 compile : 
-	$(CC) $(SRC) -o $(EXEC) -lglut -lGL -lGLU
+	$(CC) $(SRC) -o $(EXEC) -lglut -lGL -lGLU -g
 
 run:
 	./$(EXEC)

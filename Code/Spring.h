@@ -32,6 +32,8 @@ public:
 	MassPoint3D *start, *end;
 	float org_length, strength;
 
+	Force* internalForce;
+
 	int size;
 };
 

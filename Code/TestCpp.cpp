@@ -40,24 +40,25 @@
 
 
 //#include "WorldObject.h"
-//#include "Rope.h"
-//Rope myRope;
+#include "Rope.h"
+
 
 
 
 Camera myCamera;
 
 Surface3D aSurface;
+
+
 Cube3D aCube;
+Rope myRope;
 
 Spring mySpring; 
 
-
 bool isOrtho;
 
-
-GLfloat angle = 20;
-GLfloat angle2 = 30; 
+GLfloat angle = 0;
+GLfloat angle2 = 0; 
 
 int moving, startx, starty;
 
@@ -83,9 +84,9 @@ void init(void)
 	glShadeModel (GL_SMOOTH);
 
 	myCamera = Camera();
-	myCamera.XCoord = 5;
-	myCamera.YCoord = 2;	
-	myCamera.ZCoord = 6;
+	myCamera.XCoord = 0;
+	myCamera.YCoord = 0;	
+	myCamera.ZCoord = -30;
 	/*myCamera.currentXangle = 0;
 	myCamera.currentYangle = 0;
 	myCamera.currentZangle = 30;*/
@@ -128,7 +129,8 @@ void display(void)
 	if (isOrtho){
 		glOrtho(-15, 15, -15, 15, -2.0, 500);
 	}else{
-		glFrustum (-10, 10, -10, 10, 6, 500);
+		//glFrustum (-10, 10, -10, 10, 6, 500);
+		gluPerspective(60, 1, 6, 500);
 	}
 
 	glEnable(GL_DEPTH_TEST);
@@ -138,14 +140,19 @@ void display(void)
 	gluLookAt ( myCamera.XCoord,myCamera.YCoord,myCamera.ZCoord , 0,0,0, 0,1,0 );
 
 
-	    glRotatef(angle2, 1.0, 0.0, 0.0);
-	    glRotatef(angle, 0.0, 1.0, 0.0);
+	glRotatef(angle2, 1.0, 0.0, 0.0);
+	glRotatef(angle, 0.0, 1.0, 0.0);
+
+
 
 	aCube.draw();
 
 	
 	// TODO iterate over all "objects" and paint them
+	
 	mySpring.draw();
+
+	//myRope.draw();
 
 
 	//glMatrixMode(GL_PROJECTION);	
@@ -259,18 +266,38 @@ void keyboard(unsigned char key, int x, int y)
 
 float theTime = 0;
 
+#include <limits.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/times.h>
+
+#ifndef CLK_TCK
+#define CLK_TCK 1
+#endif
+
 float timedelta(){
-	return 1;
+    static long begin = 0;
+    static long finish, difference;
+
+    static struct tms tb;
+    finish = times(&tb);
+
+    difference = finish - begin;
+//std::cout << difference << std::endl;
+    begin = finish;
+
+    return 0.6;//(float)difference/(float)CLK_TCK;
 }
 
 void time(void){
-
+	//std::cout << "time passes... " << std::endl;
 	float dt = timedelta();
 	theTime += dt;
 
-	if( (int)theTime % 100 == 0){
+	if( (int)theTime % 10 == 0){
 		
-		// TODO perform calculations on all WorldObjects	
+		// TODO perform calculations on all WorldObjects
+			
 		mySpring.timeStep( dt );
 	
 	}
@@ -280,10 +307,12 @@ void time(void){
 }
 
 void visible(int vis) {
-  if (vis == GLUT_VISIBLE)
-    glutIdleFunc(time);
-  else
-    glutIdleFunc(NULL);
+	if (vis == GLUT_VISIBLE){
+		std::cout << "activate time... " << std::endl;
+		glutIdleFunc(time);
+	} else {
+		glutIdleFunc(NULL);
+	}
 }
 
 void openGLrun(){
@@ -325,14 +354,26 @@ int main(int argc, char** argv)
 	
 	// Add initial objects and forces to our world:
 	//Force gravity(0, -9.8, 0);
+	
 	Force gravity(0, -1, 0);
+
 	MassPoint3D start(0, 0, 0);
+	start.addForce(&gravity);
 	start.setAnchor(true);
-	MassPoint3D end(20, 0, 0);
+
+	MassPoint3D end(0, -10, 0);
 	end.addForce(&gravity);
 
-	mySpring = Spring(&start, &end, 1);
+	mySpring = Spring(&start, &end, .31);
 	mySpring.setSize(5);
+
+	/*MassPoint3D* start = new MassPoint3D(0, 0, 0);
+	myRope = Rope(start);
+	MassPoint3D* next = new MassPoint3D(5, 0, 0);
+	myRope.addNode(next);
+	MassPoint3D* next2 = new MassPoint3D(10, 0, 0);
+	myRope.addNode(next2);*/
+	
 
 	// Start and show the 3D world:
 	openGLrun();

@@ -4,11 +4,13 @@
 #define FORCE_H_
 
 #include "Force.h"
+#include <math.h>
 
 class Force {
 public:
 	// Con- and Destructor:
 	Force(float x, float y, float z, float f);
+	Force(float x, float y, float z);
 	virtual ~Force();
 
 	// Arithmetic methods:
@@ -17,7 +19,8 @@ public:
 	void add(Force * f);		
 
 	// Properties:
-	float force;	// amount
+	//float force;	// amount
+	float getForce();
 	float x, y, z;  // direction
 
 };

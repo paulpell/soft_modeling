@@ -3,34 +3,26 @@
 Rope::Rope(){
 }
 
-Rope::Rope(float x, float y, float z, float dx, float dy, float dz){
-
-	// TODO more than one "segment"
-
-	MassPoint3D start(x, y, z);
-	MassPoint3D end(dx, dy, dz);
-
-	// TODO anchorpoint possible at other or multiple positions...
-	start.setAnchor(true);
-
-	// add the Points to the pointList
-	//pointList = list<MassPoint3D>;
+Rope::Rope(MassPoint3D* start){
+	// add the startpoints to the pointList
+	//list<MassPoint3D*> pointList;
 	pointList.push_front(start);
-	pointList.push_front(end);
+
+	//springList = list<Spring*>;
+}
+
+void Rope::addNode(MassPoint3D* next){
+	pointList.push_front(next);
 
 	// Create the connection Springs:
-	Spring spring1(&start, &end, 1);
+	MassPoint3D* last = pointList.front();
+	Spring* spring1 = new Spring(last, next, 0.31);
+	spring1->setSize(5);
 
 	// Add Springs to the springList
 	springList.push_front(spring1);
-
 }
 
-void Rope::draw(){
 
-	//list<Spring>::iterator it, listend = springList.end();
-	//for (it = springList.begin(); it != listend; it++) {
-	//	(*it).draw();
-	//}
 
-}
+

@@ -8,6 +8,7 @@
 #include "Vertex3D.h"
 #include "Vector3D.h"
 
+#include <iostream>
 
 class MassPoint3D : public Vertex3D {
 public:
@@ -31,6 +32,8 @@ public:
 	Vector3D velocity;
 
 	std::list<Force*> forcelist;
+
+	void draw();
 	
 };
 

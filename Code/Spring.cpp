@@ -5,8 +5,14 @@
 Spring::Spring(MassPoint3D *start, MassPoint3D *end, float strength) {
 	this->start = start;
 	this->end = end;
+
+
 	this->strength = strength;
 	this->org_length = getLength();
+
+	internalForce = new Force(0, 0, 0);
+	start->addForce(internalForce);
+	end->addForce(internalForce);
 }
 
 Spring::Spring(){
@@ -27,6 +33,30 @@ float Spring::getLength(){
 }
 
 void Spring::timeStep(float time){
+
+	// update the force
+	float l = getLength();
+	float dx = (start->x - end->x) / l;
+	float dy = (start->y - end->y) / l;
+	float dz = (start->z - end->z) / l;
+	float forceIntensity = - strength * (l - org_length);
+
+	// if both are not anchors, divide the force by 2
+	if (!(start->isAnchor || end->isAnchor)) forceIntensity /= 2;
+
+	internalForce->x = dx * forceIntensity;
+	internalForce->y = dy * forceIntensity;
+	internalForce->z = dz * forceIntensity;
+
+
+	//if(start- TODO dont move anchors
+	start->timeStep(time);
+
+
+	// opposite force for both masspoints
+	internalForce->x *= -1;
+	internalForce->z *= -1;
+	internalForce->y *= -1;
 
 	end->timeStep(time);
 
