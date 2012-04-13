@@ -24,7 +24,7 @@ MassPoint3D::MassPoint3D(float x, float y, float z){
 
 	//forces = 1;
 	//forceList = new Force;
-	//velocity = Vector3D(0, 0, 0);
+	velocity = Vector3D(0, 0, 0);
 }
 
 MassPoint3D::~MassPoint3D(){
@@ -42,10 +42,12 @@ void MassPoint3D::setAnchor(bool b){
 
 void MassPoint3D::draw(){
 	Vertex3D::draw();
-	std::cout << "Masspoint Coords: " << x << " " << y << " " <<  z << std::endl;
+	//std::cout << "Masspoint Coords: " << x << " " << y << " " <<  z << std::endl;
 }
 
 void MassPoint3D::timeStep(float time){
+    using namespace std;
+    std::cout << "MP3D" << std::endl;
 
 	if (isAnchor) return;
 
@@ -53,19 +55,23 @@ void MassPoint3D::timeStep(float time){
 
 	// compute overall force
 	Force temp(0.0, 0.0, 0.0);
+    cout << "computing force\n";
 	list<Force*>::iterator it, listend = forcelist.end();
 	for (it = forcelist.begin(); it != listend; it++) {
+           cout << "  adding x=" << (*it)->x << ",y="<<(*it)->y << ",z="<<(*it)->z <<endl;
 		temp.x += (*it)->x;
 		temp.y += (*it)->y;
 		temp.z += (*it)->z;
 	}
 
-	std::cout << mass << std::endl;
+	std::cout << "m" << mass << std::endl;
+    std::cout << "Force: " << temp.x << "," << temp.y << "," << temp.z << std::endl;
 	// update velocity
 	velocity.x += time * (temp.x / mass);
 	velocity.y += time * (temp.y / mass);
 	velocity.z += time * (temp.z / mass);
 
+    cout << "velocity" << velocity.x << "," << velocity.y<<"," << velocity.z << " time=" << time << endl;
 	// TODO maybe store old location here
 
 	// update Coords
@@ -73,4 +79,5 @@ void MassPoint3D::timeStep(float time){
 	y += time* velocity.y;
 	z += time* velocity.z;
 
+    cout << "pos: " << x<<"," <<y<< "," << z<< endl;
 }

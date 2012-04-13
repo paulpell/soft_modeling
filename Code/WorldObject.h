@@ -30,6 +30,8 @@ public:
 	// Properties:
 	list<Spring*> springList;
 	list<MassPoint3D*> pointList;
+    //list<Spring> springList;
+    //list<MassPoint3D> pointList;
 };
 
 #endif /* WORLDOBJECT_H_ */

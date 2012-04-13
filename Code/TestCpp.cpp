@@ -150,9 +150,9 @@ void display(void)
 	
 	// TODO iterate over all "objects" and paint them
 	
-	mySpring.draw();
+	//mySpring.draw();
 
-	//myRope.draw();
+	myRope.draw();
 
 
 	//glMatrixMode(GL_PROJECTION);	
@@ -298,7 +298,8 @@ void time(void){
 		
 		// TODO perform calculations on all WorldObjects
 			
-		mySpring.timeStep( dt );
+		//mySpring.timeStep( dt );
+        myRope.timeStep(dt);
 	
 	}
 
@@ -356,7 +357,7 @@ int main(int argc, char** argv)
 	//Force gravity(0, -9.8, 0);
 	
 	Force gravity(0, -1, 0);
-
+   /* 
 	MassPoint3D start(0, 0, 0);
 	start.addForce(&gravity);
 	start.setAnchor(true);
@@ -366,13 +367,19 @@ int main(int argc, char** argv)
 
 	mySpring = Spring(&start, &end, .31);
 	mySpring.setSize(5);
-
-	/*MassPoint3D* start = new MassPoint3D(0, 0, 0);
+*/
+	MassPoint3D* start = new MassPoint3D(0, 0, 0);
+    start->setAnchor(true);
 	myRope = Rope(start);
-	MassPoint3D* next = new MassPoint3D(5, 0, 0);
+	MassPoint3D* next = new MassPoint3D(2, 0, 0);
 	myRope.addNode(next);
-	MassPoint3D* next2 = new MassPoint3D(10, 0, 0);
-	myRope.addNode(next2);*/
+	MassPoint3D* next2 = new MassPoint3D(4, 0, 0);
+	myRope.addNode(next2);
+	MassPoint3D* next3 = new MassPoint3D(6, 0, 0);
+    next3->setAnchor(true);
+	myRope.addNode(next3);
+
+    myRope.applyGlobalForce(&gravity);
 	
 
 	// Start and show the 3D world:
