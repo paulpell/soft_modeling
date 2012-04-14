@@ -52,6 +52,7 @@ Surface3D aSurface;
 
 Cube3D aCube;
 Rope myRope;
+Rope myRope2;
 
 Spring mySpring; 
 
@@ -68,7 +69,7 @@ void create()
 
 	//Texture texture2("cat.bmp", 128, 128);
 	Vertex3D center(0,0,0);
-	aCube = Cube3D(center, 30);
+	aCube = Cube3D(center, 40);
 	//aCube.addTexture(texture2, 1);
 
 
@@ -86,7 +87,7 @@ void init(void)
 	myCamera = Camera();
 	myCamera.XCoord = 0;
 	myCamera.YCoord = 0;	
-	myCamera.ZCoord = -30;
+	myCamera.ZCoord = 40;
 	/*myCamera.currentXangle = 0;
 	myCamera.currentYangle = 0;
 	myCamera.currentZangle = 30;*/
@@ -153,7 +154,7 @@ void display(void)
 	//mySpring.draw();
 
 	myRope.draw();
-
+	myRope2.draw();
 
 	//glMatrixMode(GL_PROJECTION);	
 	//glLoadIdentity();
@@ -299,8 +300,8 @@ void time(void){
 		// TODO perform calculations on all WorldObjects
 			
 		//mySpring.timeStep( dt );
-        myRope.timeStep(dt);
-	
+        	myRope.timeStep(dt);
+	        myRope2.timeStep(dt);
 	}
 
 	glutPostRedisplay();
@@ -368,19 +369,57 @@ int main(int argc, char** argv)
 	mySpring = Spring(&start, &end, .31);
 	mySpring.setSize(5);
 */
-	MassPoint3D* start = new MassPoint3D(0, 0, 0);
-    start->setAnchor(true);
-	myRope = Rope(start);
-	MassPoint3D* next = new MassPoint3D(2, 0, 0);
-	myRope.addNode(next);
-	MassPoint3D* next2 = new MassPoint3D(2, 2, 0);
-	myRope.addNode(next2);
-	MassPoint3D* next3 = new MassPoint3D(0, 2, 0);
+
+
+
+	/* "advanced twofaced" rope ... <- no forces between "sides"
+		dont worry this will later come into the constructor of Ropeclass	
+		for now i did it with masspoints... can also just be done with vertices [saves computation] ;)
+		we basically just need one "rope-spline" in the middle and a vertex, texture tube around it
+		just wanted to have a look at it
+	*/
+	MassPoint3D* startA = new MassPoint3D(0, 0, 1);
+	MassPoint3D* startB = new MassPoint3D(0, 0, 0);
+	startA->setAnchor(true);
+	startB->setAnchor(true);
+
+	MassPoint3D* nextA = new MassPoint3D(2, 0, 1);
+	MassPoint3D* nextB = new MassPoint3D(2, 0, 0);
+
+	MassPoint3D* next2A = new MassPoint3D(4, 0, 1);
+	MassPoint3D* next2B = new MassPoint3D(4, 0, 0);
+
+	MassPoint3D* next3A = new MassPoint3D(6, 0, 1);
+	MassPoint3D* next3B = new MassPoint3D(6, 0, 0);
+
+	MassPoint3D* next4A = new MassPoint3D(8, 0, 1);
+	MassPoint3D* next4B = new MassPoint3D(8, 0, 0);
+
+	MassPoint3D* next5A = new MassPoint3D(10, 0, 1);
+	MassPoint3D* next5B = new MassPoint3D(10, 0, 0);
+
+
     //next3->setAnchor(true);
-	myRope.addNode(start);
+
+	myRope = Rope(startA);
+	myRope.addNode(nextA);
+	myRope.addNode(next2A);
+	myRope.addNode(next3A);
+	myRope.addNode(next4A);
+	myRope.addNode(next5A);
+
+	myRope2 = Rope(startB);
+	myRope2.addNode(nextB);
+	myRope2.addNode(next2B);
+	myRope2.addNode(next3B);
+	myRope2.addNode(next4B);
+	myRope2.addNode(next5B);
+
+
+//	myRope.addNode(start);
 
     myRope.applyGlobalForce(&gravity);
-	
+    myRope2.applyGlobalForce(&gravity);
 
 	// Start and show the 3D world:
 	openGLrun();
