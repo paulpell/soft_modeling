@@ -373,11 +373,11 @@ int main(int argc, char** argv)
 	myRope = Rope(start);
 	MassPoint3D* next = new MassPoint3D(2, 0, 0);
 	myRope.addNode(next);
-	MassPoint3D* next2 = new MassPoint3D(4, 0, 0);
+	MassPoint3D* next2 = new MassPoint3D(2, 2, 0);
 	myRope.addNode(next2);
-	MassPoint3D* next3 = new MassPoint3D(6, 0, 0);
-    next3->setAnchor(true);
-	myRope.addNode(next3);
+	MassPoint3D* next3 = new MassPoint3D(0, 2, 0);
+    //next3->setAnchor(true);
+	myRope.addNode(start);
 
     myRope.applyGlobalForce(&gravity);
 	

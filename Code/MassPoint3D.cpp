@@ -1,9 +1,10 @@
 
 #include "MassPoint3D.h"
 
+static float dampening = .95;
 
 using namespace std;
-
+//
 MassPoint3D::MassPoint3D(){
 	x = 0;
 	y = 0;
@@ -74,10 +75,16 @@ void MassPoint3D::timeStep(float time){
     cout << "velocity" << velocity.x << "," << velocity.y<<"," << velocity.z << " time=" << time << endl;
 	// TODO maybe store old location here
 
+    
+    
 	// update Coords
 	x += time* velocity.x;
 	y += time* velocity.y;
 	z += time* velocity.z;
+
+    velocity.x *= dampening;
+    velocity.y *= dampening;
+    velocity.z *= dampening;
 
     cout << "pos: " << x<<"," <<y<< "," << z<< endl;
 }

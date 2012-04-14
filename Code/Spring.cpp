@@ -37,12 +37,16 @@ float Spring::getLength(){
 void Spring::timeStep(float time){
 
     using namespace std;
+
+//    float dampening = .1;
+
 	// update the force
 	float l = getLength();
 	float dx = (start->x - end->x) / l;
 	float dy = (start->y - end->y) / l;
 	float dz = (start->z - end->z) / l;
 	float forceIntensity = - elasticity * (l - org_length);
+
 
 	// if both are not anchors, divide the force by 2
 	if (!(start->isAnchor || end->isAnchor)) forceIntensity /= 2;
