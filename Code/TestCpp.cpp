@@ -154,7 +154,7 @@ void display(void)
 	//mySpring.draw();
 
 	myRope.draw();
-	myRope2.draw();
+	//myRope2.draw();
 
 	//glMatrixMode(GL_PROJECTION);	
 	//glLoadIdentity();
@@ -250,6 +250,12 @@ void keyboard(unsigned char key, int x, int y)
 		myCamera.YCoord -= 1;
 	}
 
+	if (key == 32){
+		Force gravity(0, -1, 0);
+		MassPoint3D* start = new MassPoint3D(0, 0, 0);
+		myRope = Rope(start);
+		myRope.applyGlobalForce(&gravity);
+	}
 
 
 	if (key == 27){
@@ -277,7 +283,8 @@ float theTime = 0;
 #endif
 
 float timedelta(){
-    static long begin = 0;
+
+/*    static long begin = 0;
     static long finish, difference;
 
     static struct tms tb;
@@ -287,7 +294,9 @@ float timedelta(){
 //std::cout << difference << std::endl;
     begin = finish;
 
-    return 0.6;//(float)difference/(float)CLK_TCK;
+	return (float)difference/(float)CLK_TCK; */
+
+    return 2; // for now a good value
 }
 
 void time(void){
@@ -301,7 +310,7 @@ void time(void){
 			
 		//mySpring.timeStep( dt );
         	myRope.timeStep(dt);
-	        myRope2.timeStep(dt);
+	        //myRope2.timeStep(dt);
 	}
 
 	glutPostRedisplay();
@@ -344,10 +353,6 @@ int openGLinit(int argc, char** argv){
 
 
 
-
-
-
-
 int main(int argc, char** argv)
 {
 	
@@ -355,77 +360,15 @@ int main(int argc, char** argv)
 	openGLinit(argc, argv);
 	
 	// Add initial objects and forces to our world:
-	//Force gravity(0, -9.8, 0);
 	
 	Force gravity(0, -1, 0);
-   /* 
-	MassPoint3D start(0, 0, 0);
-	start.addForce(&gravity);
-	start.setAnchor(true);
 
-	MassPoint3D end(0, -10, 0);
-	end.addForce(&gravity);
-
-	mySpring = Spring(&start, &end, .31);
-	mySpring.setSize(5);
-*/
-
-
-
-	/* "advanced twofaced" rope ... <- no forces between "sides"
-		dont worry this will later come into the constructor of Ropeclass	
-		for now i did it with masspoints... can also just be done with vertices [saves computation] ;)
-		we basically just need one "rope-spline" in the middle and a vertex, texture tube around it
-		just wanted to have a look at it
-	*/
-	MassPoint3D* startA = new MassPoint3D(0, 0, 1);
-	MassPoint3D* startB = new MassPoint3D(0, 0, 0);
-	startA->setAnchor(true);
-	startB->setAnchor(true);
-
-	MassPoint3D* nextA = new MassPoint3D(2, 0, 1);
-	MassPoint3D* nextB = new MassPoint3D(2, 0, 0);
-
-	MassPoint3D* next2A = new MassPoint3D(4, 0, 1);
-	MassPoint3D* next2B = new MassPoint3D(4, 0, 0);
-
-	MassPoint3D* next3A = new MassPoint3D(6, 0, 1);
-	MassPoint3D* next3B = new MassPoint3D(6, 0, 0);
-
-	MassPoint3D* next4A = new MassPoint3D(8, 0, 1);
-	MassPoint3D* next4B = new MassPoint3D(8, 0, 0);
-
-	MassPoint3D* next5A = new MassPoint3D(10, 0, 1);
-	MassPoint3D* next5B = new MassPoint3D(10, 0, 0);
-
-
-    //next3->setAnchor(true);
-
-	myRope = Rope(startA);
-	myRope.addNode(nextA);
-	myRope.addNode(next2A);
-	myRope.addNode(next3A);
-	myRope.addNode(next4A);
-	myRope.addNode(next5A);
-
-	myRope2 = Rope(startB);
-	myRope2.addNode(nextB);
-	myRope2.addNode(next2B);
-	myRope2.addNode(next3B);
-	myRope2.addNode(next4B);
-	myRope2.addNode(next5B);
-
-
-//	myRope.addNode(start);
-
-    myRope.applyGlobalForce(&gravity);
-    myRope2.applyGlobalForce(&gravity);
+	MassPoint3D* start = new MassPoint3D(0, 0, 0);
+	myRope = Rope(start);
+	myRope.applyGlobalForce(&gravity);
 
 	// Start and show the 3D world:
 	openGLrun();
-
-	//myRope = Rope(0, 0, 0,    5, 0, 0); 
-	//myRope.applyGeneral(gravity)
 	
 	return 0;
 }
