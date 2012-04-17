@@ -28,7 +28,7 @@ using namespace std;
 
 		char* temp = new char;
 		fileBMP.read(temp , sizeof(char));
-		xData[y][x][1] =  *temp;
+		xData[y][x][0] =  *temp;
 
 		fileBMP.read(temp , sizeof(char));
 		xData[y][x][2] =  *temp;

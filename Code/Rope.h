@@ -7,6 +7,8 @@
 #include "MassPoint3D.h"
 #include "Spring.h"
 
+#include "Texture.h"
+
 #include <list>
 
 class Rope : public WorldObject {
@@ -31,7 +33,10 @@ public:
 private:
 
 	// 
-	int segments, segsize, hardness, radius;
+	int segments;
+	float radius, hardness, segsize;
+
+	//Texture ropetexture;
 
 };
 

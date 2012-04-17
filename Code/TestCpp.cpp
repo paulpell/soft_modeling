@@ -1,55 +1,33 @@
 //============================================================================
-// Name        : TestCpp.cpp
-// Author      : 
+// Name        : 
+// Author      : Paul and Philipp
 // Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
+// Description : Modeling Soft Objects with OpenGL
 //============================================================================
-
-/*
- * main.cpp
- *
- *  Created on: Feb 27, 2012
- *      Author: terix
- */
 
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <stdlib.h>
 
-//include "Camera.h"
 #include "Cube3D.h"
-
 #include "Camera.h"
-
 #include "Vertex3D.h"
 #include "Vector3D.h"
-
-
 #include "Surface3D.h"
 #include "Texture.h"
-
 #include "Keyboard.h"
-
 #include "World3D.h"
-
 #include "MassPoint3D.h"
-
 #include "Spring.h"
 
 
 //#include "WorldObject.h"
 #include "Rope.h"
 
-
-
-
 Camera myCamera;
 
-Surface3D aSurface;
-
-
+Surface3D theFloor;
 Cube3D aCube;
 Rope myRope;
 Rope myRope2;
@@ -65,33 +43,41 @@ int moving, startx, starty;
 
 void create()
 {
-
-
 	//Texture texture2("cat.bmp", 128, 128);
 	Vertex3D center(0,0,0);
 	aCube = Cube3D(center, 40);
 	//aCube.addTexture(texture2, 1);
-
-
 }
 
 void init(void)
 {
-
 	isOrtho = false;
 
 	glClearColor (0.0, 0.0, 0.0, 0.0);
-	//glShadeModel (GL_FLAT);
 	glShadeModel (GL_SMOOTH);
 
 	myCamera = Camera();
 	myCamera.XCoord = 0;
-	myCamera.YCoord = 0;	
-	myCamera.ZCoord = 40;
-	/*myCamera.currentXangle = 0;
-	myCamera.currentYangle = 0;
-	myCamera.currentZangle = 30;*/
+	myCamera.YCoord = 30;	
+	myCamera.ZCoord = 60;
 
+	// Floor
+	Vertex3D a(-128, 0, -128);	
+	Vertex3D b(-128, 0, 128);
+	Vertex3D c(128, 0, 128);
+	Vertex3D d(128, 0, -128);
+	theFloor = Surface3D(a, b, c, d);
+	theFloor.setColor(.1, .3, .1);
+	Texture grass("grass.bmp", 512, 512);
+	theFloor.setTexture(grass);
+
+	// Fog
+	float black[] = {.1, .1, .3, 0};
+	glFogfv(GL_FOG_COLOR, black);
+	glFogf(GL_FOG_START, 3.5);
+	glFogf(GL_FOG_END, 5);
+	//glEnable(GL_FOG);
+	glFogi(GL_FOG_MODE, GL_LINEAR);
 
 	/*GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat mat_shininess[] = { 50.0 };
@@ -114,9 +100,9 @@ void init(void)
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 
-	glEnable(GL_LIGHTING);
+	glDisable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-		//glDisable(GL_LIGHT0);
+	//glDisable(GL_LIGHT0);
 }
 
 
@@ -138,16 +124,13 @@ void display(void)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt ( myCamera.XCoord,myCamera.YCoord,myCamera.ZCoord , 0,0,0, 0,1,0 );
-
+	gluLookAt ( myCamera.XCoord,myCamera.YCoord,myCamera.ZCoord , 0,35,0, 0,1,0 );
 
 	glRotatef(angle2, 1.0, 0.0, 0.0);
 	glRotatef(angle, 0.0, 1.0, 0.0);
 
-
-
-	aCube.draw();
-
+	//aCube.draw();
+	theFloor.draw();
 	
 	// TODO iterate over all "objects" and paint them
 	
@@ -156,11 +139,6 @@ void display(void)
 	myRope.draw();
 	//myRope2.draw();
 
-	//glMatrixMode(GL_PROJECTION);	
-	//glLoadIdentity();
-	//myCamera.move_camera();
-
-	
 	glDisable(GL_DEPTH_TEST);
 
 	glutSwapBuffers();
@@ -168,19 +146,7 @@ void display(void)
 
 void reshape(int width, int height)
 {
-
-	//glViewport (0, 0, 600, 600);
    	 glViewport(0, 0, width, height);
-
-	/*glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	if (isOrtho){
-		glOrtho(-2, 2, -2, 2, -1.0, 10);
-	}else{
-		glFrustum (-1, 1, -1, 1, 2, 20);
-	}*/
-
 }
 
 
@@ -296,7 +262,7 @@ float timedelta(){
 
 	return (float)difference/(float)CLK_TCK; */
 
-    return 2; // for now a good value
+    return .6; // for now a good value
 }
 
 void time(void){
@@ -308,9 +274,9 @@ void time(void){
 		
 		// TODO perform calculations on all WorldObjects
 			
-		//mySpring.timeStep( dt );
+
         	myRope.timeStep(dt);
-	        //myRope2.timeStep(dt);
+
 	}
 
 	glutPostRedisplay();
@@ -363,7 +329,7 @@ int main(int argc, char** argv)
 	
 	Force gravity(0, -1, 0);
 
-	MassPoint3D* start = new MassPoint3D(0, 0, 0);
+	MassPoint3D* start = new MassPoint3D(0, 50, 0);
 	myRope = Rope(start);
 	myRope.applyGlobalForce(&gravity);
 
