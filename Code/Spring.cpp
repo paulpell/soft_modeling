@@ -81,7 +81,7 @@ void Spring::draw(){
 	glLineWidth(size);
 	glColor3f(1.0, 1.0, 1.0);
 	float mcolor[] = { 1, 1, 1, 1.0f };
-    cout << "Sprign: " << start->y << endl;
+    //cout << "Sprign: " << start->y << endl;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mcolor);
 	glBegin(GL_LINES);
 		start->draw();

@@ -48,7 +48,7 @@ void MassPoint3D::draw(){
 
 void MassPoint3D::timeStep(float time){
     using namespace std;
-    std::cout << "MP3D" << std::endl;
+    //std::cout << "MP3D" << std::endl;
 
 	if (isAnchor) return;
 
@@ -56,23 +56,23 @@ void MassPoint3D::timeStep(float time){
 
 	// compute overall force
 	Force temp(0.0, 0.0, 0.0);
-    cout << "computing force\n";
+    //cout << "computing force\n";
 	list<Force*>::iterator it, listend = forcelist.end();
 	for (it = forcelist.begin(); it != listend; it++) {
-           cout << "  adding x=" << (*it)->x << ",y="<<(*it)->y << ",z="<<(*it)->z <<endl;
+          // cout << "  adding x=" << (*it)->x << ",y="<<(*it)->y << ",z="<<(*it)->z <<endl;
 		temp.x += (*it)->x;
 		temp.y += (*it)->y;
 		temp.z += (*it)->z;
 	}
 
-	std::cout << "m" << mass << std::endl;
-    std::cout << "Force: " << temp.x << "," << temp.y << "," << temp.z << std::endl;
+	//std::cout << "m" << mass << std::endl;
+   // std::cout << "Force: " << temp.x << "," << temp.y << "," << temp.z << std::endl;
 	// update velocity
 	velocity.x += time * (temp.x / mass);
 	velocity.y += time * (temp.y / mass);
 	velocity.z += time * (temp.z / mass);
 
-    cout << "velocity" << velocity.x << "," << velocity.y<<"," << velocity.z << " time=" << time << endl;
+    //cout << "velocity" << velocity.x << "," << velocity.y<<"," << velocity.z << " time=" << time << endl;
 	// TODO maybe store old location here
 
     
@@ -86,5 +86,5 @@ void MassPoint3D::timeStep(float time){
     velocity.y *= dampening;
     velocity.z *= dampening;
 
-    cout << "pos: " << x<<"," <<y<< "," << z<< endl;
+   // cout << "pos: " << x<<"," <<y<< "," << z<< endl;
 }

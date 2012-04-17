@@ -23,7 +23,7 @@ void WorldObject::timeStep(float time){
         (*it2)->timeStep(time);
     }
 
-    cout << "ASOIDJAW:"<<endl;
+    //cout << "ASOIDJAW:"<<endl;
 }
 
 void WorldObject::draw(){

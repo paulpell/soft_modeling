@@ -70,7 +70,7 @@ public:
 	int imagewidth;
 	int imageheight;
 
-	char xData[128][128][4];
+	char xData[512][512][4];
 
 };
 
