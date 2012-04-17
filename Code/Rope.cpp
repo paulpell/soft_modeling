@@ -37,10 +37,13 @@ Rope::Rope(MassPoint3D* start){
 		cout << "adding" << x+i*segsize << " "  << y << " " << z << endl;
 		addNode(spline);
 	}
-
-	cout << "Rope completed with " << pointList.size() << " points" << endl;
+cout << "Rope completed with " << pointList.size() << " points" << endl;
 
 }
+
+Texture Rope::ropetexture = Texture("rope.bmp", 512, 512);
+GLuint Rope::textureName = 0;
+
 
 // this was used back when we added points manually....
 void Rope::addNode(MassPoint3D* next){
@@ -81,6 +84,20 @@ void Rope::draw(){
 	// now loop over segments:
 	seghead = springList.begin();
 	listend = springList.end();
+
+   // generate, bind the texture
+   //glBindTexture(GL_TEXTURE_2D, textureName);
+   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+   int width = ropetexture.imagewidth;
+   int height = ropetexture.imageheight;
+   //glTexImage2D(GL_TEXTURE_2D, 3, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, ropetexture.xData);
+   gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, 200, 200, GL_RGB, GL_UNSIGNED_BYTE, ropetexture.xData);
+   glEnable(GL_TEXTURE_2D);
+
 	while ( seghead != listend ) {
 
 		// get the coords of segment:
@@ -113,18 +130,26 @@ void Rope::draw(){
 		angle = vecangle(x2-x1, y2-y1, z2-z1, 1, 0, 0);
 
 		// paint the tube of this segment
-		glColor3f(225.0/256.0,157.0/256.0,76.0/256.0); // some ropelike color...
-		glPushMatrix();
+		//glColor3f(225.0/256.0,157.0/256.0,76.0/256.0); // some ropelike color...
+
+ 		glPushMatrix();
 			glTranslatef(x1, y1, z1);
 			glRotatef(90, 0, 1, 0); // because the rope hangs in x+ direction!
 			glRotatef(-angle, 1, 0, 0); // because the rope will be bent around x
-			gluCylinder(gluNewQuadric(), radius, radius, seglen, 8, 1);
+            GLUquadric* quad = gluNewQuadric();
+            gluQuadricTexture(quad, true);
+            gluQuadricDrawStyle(quad, GLU_FILL);
+			gluCylinder(quad, radius, radius, seglen, 8, 1);
 
 			// APPLY TEXTURE HERE
 			// Texture ropetexture("rope.bmp", 512, 512);
+            //
 
 		glPopMatrix();
+        
 	}
+    glDeleteTextures(1, &textureName);
+//    glDisable(GL_TEXTURE_2D);
 
 }
 

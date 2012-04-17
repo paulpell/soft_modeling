@@ -12,6 +12,9 @@
 #include <list>
 
 class Rope : public WorldObject {
+    static Texture ropetexture;
+    void initTexture();
+    static GLuint textureName;
 public:
 	// Con- and Destructor:
 	Rope();
