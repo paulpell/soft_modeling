@@ -25,7 +25,7 @@ Rope::Rope(MassPoint3D* start){
 	// properties of rope:
 	segments = 8; // must be at least 1 !!
 	segsize = 3; // seglength without stress
-	radius = 0.3;
+	radius = 0.5;
 	hardness = radius*10; // je dicker das seil desto fester :D
 
 	// adding points to ropes 'spline'
@@ -39,10 +39,12 @@ Rope::Rope(MassPoint3D* start){
 	}
 cout << "Rope completed with " << pointList.size() << " points" << endl;
 
+    if (Rope::ropetextureName == 0)
+        glGenTextures(1, &Rope::ropetextureName);
 }
 
-Texture Rope::ropetexture = Texture("rope.bmp", 512, 512);
-GLuint Rope::textureName = 0;
+Texture Rope::ropetexture = Texture("rope.512x512.bmp", 512, 512);
+GLuint Rope::ropetextureName = 0;
 
 
 // this was used back when we added points manually....
@@ -86,17 +88,16 @@ void Rope::draw(){
 	listend = springList.end();
 
    // generate, bind the texture
-   //glBindTexture(GL_TEXTURE_2D, textureName);
-   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glEnable(GL_TEXTURE_2D);
+   glBindTexture(GL_TEXTURE_2D, ropetextureName);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
    int width = ropetexture.imagewidth;
    int height = ropetexture.imageheight;
-   //glTexImage2D(GL_TEXTURE_2D, 3, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, ropetexture.xData);
-   gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, 200, 200, GL_RGB, GL_UNSIGNED_BYTE, ropetexture.xData);
-   glEnable(GL_TEXTURE_2D);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ropetexture.xData);
 
 	while ( seghead != listend ) {
 
@@ -148,8 +149,7 @@ void Rope::draw(){
 		glPopMatrix();
         
 	}
-    glDeleteTextures(1, &textureName);
-//    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
 
 }
 

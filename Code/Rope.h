@@ -13,8 +13,7 @@
 
 class Rope : public WorldObject {
     static Texture ropetexture;
-    void initTexture();
-    static GLuint textureName;
+    static GLuint ropetextureName;
 public:
 	// Con- and Destructor:
 	Rope();

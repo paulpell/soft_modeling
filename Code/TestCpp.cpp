@@ -103,6 +103,9 @@ void init(void)
 	glDisable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	//glDisable(GL_LIGHT0);
+    
+    glEnable(GL_POINT_SMOOTH);
+    
 }
 
 

@@ -42,7 +42,7 @@ void Surface3D::draw(){
 			glTexCoord2d(1.0, 0.0);		bottomleft.draw();
 		glEnd();
 
-		glDisable(GL_TEXTURE_2D);
+        glDisable(GL_TEXTURE_2D);
 	}else{
 		glColor3f(colorR,colorG,colorB);
 		float mcolor[] = { colorR, colorG, colorB, 1.0f };
