@@ -64,11 +64,11 @@ void init(void) {
 	theFloor.setTexture(grass);
 
 	// Fog
-	float black[] = {.1, .1, .3, 0};
+	float black[] = {.1, .1, .3, 0.7};
 	glFogfv(GL_FOG_COLOR, black);
 	glFogf(GL_FOG_START, 3.5);
 	glFogf(GL_FOG_END, 5);
-	//glEnable(GL_FOG);
+	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 
 	/*GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -92,8 +92,8 @@ void init(void) {
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 
-	//glEnable(GL_LIGHTING);
-	//glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
     
 	glEnable(GL_POINT_SMOOTH);
     

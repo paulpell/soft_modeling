@@ -9,7 +9,7 @@ MassPoint3D::MassPoint3D(){
 	x = 0;
 	y = 0;
 	z = 0;
-	mass = 1;
+	mass = 0.1;
 	std::cout << "WARNING in Masspoint constructor :P" << std::endl;
 	//MassPoint3D(0, 0, 0);
 }

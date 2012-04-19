@@ -32,7 +32,7 @@ public:
 
 
 	MassPoint3D *start, *end;
-	float org_length, elasticity;
+	float org_length, hardness;
 
 	Force *intForceE, *intForceS; // for End and Start
 

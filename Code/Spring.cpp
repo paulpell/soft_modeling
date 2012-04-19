@@ -8,13 +8,13 @@ Spring::~Spring(){
 }
 
 // Creates a simple String
-Spring::Spring(MassPoint3D *start, MassPoint3D *end, float elasticity) {
+Spring::Spring(MassPoint3D *start, MassPoint3D *end, float hardness) {
 	this->start = start;
 	this->end = end;
 
 
-	this->elasticity = elasticity;
 	this->org_length = getLength();
+	this->hardness = hardness / org_length;
 
 	intForceS = new Force(0, 0, 0);
 	intForceE = new Force(0, 0, 0);
@@ -43,7 +43,7 @@ void Spring::timeStep(float time){
 	float dx = (start->x - end->x) / l;
 	float dy = (start->y - end->y) / l;
 	float dz = (start->z - end->z) / l;
-	float forceIntensity = - elasticity * (l - org_length);
+	float forceIntensity = - hardness * (l - org_length);
 
 	// if both are not anchors, divide the force by 2
 	if (!(start->isAnchor || end->isAnchor)) forceIntensity /= 2.0f;

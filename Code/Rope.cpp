@@ -23,9 +23,9 @@ Rope::Rope(MassPoint3D* start){
 	start->setAnchor(true);
 
 	// properties of rope:
-	segments = 2; // must be at least 1 !!
-	segsize = 3; // seglength without stress
-	radius = 0.5;
+	segments = 5; // must be at least 1 !!
+	radius = .7;
+	segsize = radius * 6; // seglength without stress
 	hardness = radius*10; // je dicker das seil desto fester :D
 
 	// adding points to ropes 'spline'
