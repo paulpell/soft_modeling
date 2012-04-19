@@ -6,6 +6,9 @@ using namespace std;
 Cloth::Cloth(){
 }
 
+
+
+
 /*
 	This constructor creates a Cloth.
 	It is not a very dynamic editable Cloth,
@@ -64,14 +67,18 @@ Cloth::Cloth(MassPoint3D* start){
 	// compute internal Springs:
 	addSprings();
 
+	// prePare texture:
+	Texture texture = Texture("cloth.bmp", 512, 512);
 
+	glGenTextures(1, &textureName);
+	glBindTexture(GL_TEXTURE_2D, textureName);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.imagewidth, texture.imageheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.xData );
 
-	if (Cloth::ropetextureName == 0)
-		glGenTextures(1, &Cloth::ropetextureName);
 }
 
-Texture Cloth::ropetexture = Texture("cloth.bmp", 512, 512);
-GLuint Cloth::ropetextureName = 0;
+
 
 
 
@@ -126,9 +133,11 @@ float Cloth::vecangle(float x1, float y1, float z1, float x2, float y2, float z2
 }
 
 void Cloth::draw(){
+	//cout << "cloth draw" << endl;
+	//WorldObject::draw();
 
 	// some init:
-	list<Spring*>::iterator seghead, listend;	
+	/*list<Spring*>::iterator seghead, listend;	
 	float angle = 0;
 	float seglen = segsize;
 	
@@ -136,20 +145,8 @@ void Cloth::draw(){
 	seghead = springList.begin();
 	listend = springList.end();
 
-   // generate, bind the texture
-   glEnable(GL_TEXTURE_2D);
-   glBindTexture(GL_TEXTURE_2D, ropetextureName);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-   int width = ropetexture.imagewidth;
-   int height = ropetexture.imageheight;
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ropetexture.xData);
-
 	while ( seghead != listend ) {
-
+		cout << "cloth draw seg" << endl;
 		// get the coords of segment:
 		float x1 = (*seghead)->end->x;
 		float y1 = (*seghead)->end->y;
@@ -166,6 +163,7 @@ void Cloth::draw(){
 		glColor3f(1,0,0);
 		glBegin(GL_POINT);
 			glVertex3f(x1, y1, z1+0.1);// slightly dislocated so it is visible
+			//cout << x1 << y1 << z1 << endl;
 		glEnd();
 		glColor3f(0,0,1);
 		glBegin(GL_POINT);
@@ -176,12 +174,39 @@ void Cloth::draw(){
 		glBegin(GL_LINE);
 			glVertex3f(x1, y1, z1);			
 			glVertex3f(x2, y2, z2);
-		glEnd();	
-	}
-    glDisable(GL_TEXTURE_2D);
+		glEnd();
+	}*/
+
+	for(int i=0; i<segments-1; i++){
+	for(int j=0; j<segments-1; j++){
+
+	MassPoint3D* a = meshNet[i][j];
+	MassPoint3D* b = meshNet[i][j+1];
+	MassPoint3D* c = meshNet[i+1][j+1];
+	MassPoint3D* d = meshNet[i+1][j];
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textureName);
+
+	glColor3f(1,1,1);
+	float mcolor[] = { 1, 1, 1, 1.0f };
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mcolor);	
+	glBegin(GL_POLYGON);
+		glTexCoord2d(0.0, 0.0);
+		glVertex3f(a->x, a->y, a->z);
+		glTexCoord2d(0.0, 1.0);
+		glVertex3f(b->x, b->y, b->z);
+		glTexCoord2d(1.0, 1.0);
+		glVertex3f(c->x, c->y, c->z);
+	glEnd();
+	glBegin(GL_POLYGON);
+		glTexCoord2d(0.0, 0.0);
+		glVertex3f(d->x, d->y, d->z);
+		glTexCoord2d(0.0, 1.0);
+		glVertex3f(b->x, b->y, b->z);
+		glTexCoord2d(1.0, 1.0);
+		glVertex3f(c->x, c->y, c->z);
+	glEnd();	
+	glDisable(GL_TEXTURE_2D);
+	}}
 
 }
-
-
-
-

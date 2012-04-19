@@ -12,8 +12,9 @@
 #include <list>
 
 class Cloth : public WorldObject {
-    static Texture ropetexture;
-    static GLuint ropetextureName;
+	//static GLuint textureName;
+	//static Texture texture;
+
 public:
 	// Con- and Destructor:
 	Cloth();
@@ -37,6 +38,7 @@ private:
 	int segments;
 	float radius, hardness, segsize;
 
+	GLuint textureName;
 	//Texture ropetexture;
 };
 

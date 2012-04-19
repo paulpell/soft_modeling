@@ -124,7 +124,7 @@ void display(void){
 	//aCube.draw();
 	theFloor.draw();
 	myRope.draw();
-    myJelly.draw();
+	myJelly.draw();
 	myCloth.draw();
 
 
@@ -244,7 +244,7 @@ void time(void){
 
         	myRope.timeStep(dt);
 		myCloth.timeStep(dt);
-        myJelly.timeStep(dt);
+		myJelly.timeStep(dt);
 
 	}
 
