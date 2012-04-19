@@ -37,11 +37,21 @@ void WorldObject::draw(){
 
 void WorldObject::applyGlobalForce( Force *f) {
 
-    //list<MassPoint3D>::iterator it, end = pointList.end();
-    list<MassPoint3D*>::iterator it, end = pointList.end();
-    for (it = pointList.begin(); it != end; it++) {
-        //(*it).addForce(f);
-        (*it)->addForce(f);
-    }
+	//list<MassPoint3D>::iterator it, end = pointList.end();
+	list<MassPoint3D*>::iterator it, end = pointList.end();
+	for (it = pointList.begin(); it != end; it++) {
+	//(*it).addForce(f);
+	(*it)->addForce(f);
+	}
 }
+
+void WorldObject::pushSpring(MassPoint3D* start, MassPoint3D* end, float hardness){
+	// Create the connection Springs:
+	Spring* spring1 = new Spring(start, end, hardness);
+	spring1->setSize(1); // remove later
+
+	// Add Springs to the springList
+	springList.push_front(spring1);
+}
+
 

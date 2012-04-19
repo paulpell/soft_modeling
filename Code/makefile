@@ -12,7 +12,7 @@
 #
 
 CC = g++
-SRC = TestCpp.cpp World3D.cpp Vertex3D.cpp Surface3D.cpp Keyboard.cpp Texture.cpp Camera.cpp Cube3D.cpp Spring.cpp MassPoint3D.cpp Vector3D.cpp WorldObject.cpp Rope.cpp
+SRC = TestCpp.cpp World3D.cpp Vertex3D.cpp Surface3D.cpp Keyboard.cpp Texture.cpp Camera.cpp Cube3D.cpp Spring.cpp MassPoint3D.cpp Vector3D.cpp WorldObject.cpp Rope.cpp Cloth.cpp
 LIBS = -lGL -lGLU -lglut
 EXEC = Space
 

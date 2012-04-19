@@ -21,6 +21,8 @@
 #include "MassPoint3D.h"
 #include "Spring.h"
 
+#include "Cloth.h"
+
 
 //#include "WorldObject.h"
 #include "Rope.h"
@@ -28,9 +30,11 @@
 Camera myCamera;
 
 Surface3D theFloor;
-Cube3D aCube;
+
+//Cube3D aCube;
+
 Rope myRope;
-Rope myRope2;
+Cloth myCloth;
 
 Spring mySpring; 
 
@@ -44,8 +48,8 @@ int moving, startx, starty;
 void create()
 {
 	//Texture texture2("cat.bmp", 128, 128);
-	Vertex3D center(0,0,0);
-	aCube = Cube3D(center, 40);
+	//Vertex3D center(0,0,0);
+	//aCube = Cube3D(center, 40);
 	//aCube.addTexture(texture2, 1);
 }
 
@@ -141,6 +145,8 @@ void display(void)
 
 	myRope.draw();
 	//myRope2.draw();
+
+	myCloth.draw();
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -279,6 +285,7 @@ void time(void){
 			
 
         	myRope.timeStep(dt);
+		myCloth.timeStep(dt);
 
 	}
 
@@ -335,6 +342,14 @@ int main(int argc, char** argv)
 	MassPoint3D* start = new MassPoint3D(0, 50, 0);
 	myRope = Rope(start);
 	myRope.applyGlobalForce(&gravity);
+
+
+
+	Force smallgravity(0, -0.1, 0);
+
+	MassPoint3D* start2 = new MassPoint3D(10, 30, 10);
+	myCloth = Cloth(start2);
+	myCloth.applyGlobalForce(&smallgravity);
 
 	// Start and show the 3D world:
 	openGLrun();

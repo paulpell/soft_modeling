@@ -1,4 +1,9 @@
-// 15.03.2012
+//============================================================================
+// Name        : 
+// Author      : Paul and Philipp
+// Version     : 15.03.2012
+// Description : Modeling Soft Objects with OpenGL
+//============================================================================
 
 #ifndef WORLDOBJECT_H_
 #define WORLDOBJECT_H_
@@ -17,7 +22,6 @@ public:
 	WorldObject();
 	virtual ~WorldObject();
 
-
 	// 
 	void applyGlobalForce(Force *force);
 
@@ -27,11 +31,16 @@ public:
 	// 
 	void timeStep(float time);
 
+	void pushSpring(MassPoint3D* start, MassPoint3D* end, float hardness);
+
+	// for Collision detection - returns a set of MP at z=0
+	//MassPoint3D* getImpactSet();
+
+// private:
 	// Properties:
 	list<Spring*> springList;
 	list<MassPoint3D*> pointList;
-    //list<Spring> springList;
-    //list<MassPoint3D> pointList;
+
 };
 
 #endif /* WORLDOBJECT_H_ */
