@@ -15,6 +15,7 @@ public:
 	// Con- und Destructor:
 	MassPoint3D();
 	MassPoint3D(float x, float y, float z);
+	MassPoint3D(float x, float y, float z, float m);
 	virtual ~MassPoint3D();
 
 

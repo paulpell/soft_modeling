@@ -21,10 +21,9 @@ Cloth::Cloth(MassPoint3D* start){
 	// anchor is picked manually
 
 	// properties of rope:
-	segments = 5; // must be at least 1 !!
-	segsize = 4; // seglength without stress
-	radius = 0.5;
-	hardness = radius*10; // je dicker das seil desto fester :D
+	segments = 9; // must be at least 1 !!
+	segsize = 1; // seglength without stress
+	hardness = 2; // je dicker das seil desto fester :D
 
 	// adding points to cloth mesh
 	int x = start->x;
@@ -37,19 +36,21 @@ Cloth::Cloth(MassPoint3D* start){
 		for(int j=1; j<=segments; j++){
 
 			// create a new MassPoint for this object:
-			MassPoint3D* spline = new MassPoint3D(x+i*segsize, y, z+j*segsize);
+			MassPoint3D* spline = new MassPoint3D(x+i*segsize, y, z+j*segsize, 4);
 
 
 			// some hardcoded anchors
 			if(i==1 && j==1){
 				spline->setAnchor(true);
 			}
-			if(i==4 && j==4){
-				//spline->setAnchor(true);
+			if(i==segments/2  && j==segments/2) {
+				spline->setAnchor(true);
+			}
+			if(i==segments - 1  && j==segments - 1) {
+				spline->setAnchor(true);
 			}
 			
 			// debugg info:
-			//cout << "cloth adding" << x+i*segsize << " "  << y << " " << z+j*segsize << endl;
 
 			// put them in pointList for physics effects (superclass compatibility!)
 			pointList.push_front(spline); 
@@ -64,7 +65,6 @@ Cloth::Cloth(MassPoint3D* start){
 	addSprings();
 
 
-	cout << "Cloth completed with " << pointList.size() << " points" << endl;
 
 	if (Cloth::ropetextureName == 0)
 		glGenTextures(1, &Cloth::ropetextureName);
@@ -77,7 +77,6 @@ GLuint Cloth::ropetextureName = 0;
 
 // this was used back when we added points manually....
 void Cloth::addSprings(){
-	//cout << "adding springs now" << endl;
 
 	MassPoint3D *s, *e;
 
@@ -167,12 +166,10 @@ void Cloth::draw(){
 		glColor3f(1,0,0);
 		glBegin(GL_POINT);
 			glVertex3f(x1, y1, z1+0.1);// slightly dislocated so it is visible
-			//cout << "pointH" << x1 << " "  << y1 << " " << z1 << endl;
 		glEnd();
 		glColor3f(0,0,1);
 		glBegin(GL_POINT);
 			glVertex3f(x2, y2, z2-0.1); // slightly dislocated so it is visible
-			//cout << "pointT" << x2 << " " << y2 << " " << z2 << endl;
 		glEnd();
 		glLineWidth(1);
 		glColor3f(.7,.7,.7);
@@ -180,28 +177,6 @@ void Cloth::draw(){
 			glVertex3f(x1, y1, z1);			
 			glVertex3f(x2, y2, z2);
 		glEnd();	
-
-		// compute length of current segment:
-		//seglen = veclength(x1-x2, y1-y2, z1-z2);
-		// compute angle with segment and x axis:
-		//angle = vecangle(x2-x1, y2-y1, z2-z1, 1, 0, 0);
-
-		// paint the tube of this segment
-		//glColor3f(225.0/256.0,157.0/256.0,76.0/256.0); // some ropelike color...
-
- 		/*glPushMatrix();
-			glTranslatef(x1, y1, z1);
-			glRotatef(90, 0, 1, 0); // because the rope hangs in x+ direction!
-			glRotatef(-angle, 1, 0, 0); // because the rope will be bent around x
-			GLUquadric* quad = gluNewQuadric();
-			gluQuadricTexture(quad, true);
-			gluQuadricDrawStyle(quad, GLU_FILL);
-			gluCylinder(quad, radius, radius, seglen, 8, 1);
-
-			// APPLY TEXTURE HERE
-			// Texture ropetexture("rope.bmp", 512, 512);
-		glPopMatrix();*/
-        
 	}
     glDisable(GL_TEXTURE_2D);
 

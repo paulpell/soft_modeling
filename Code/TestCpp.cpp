@@ -22,6 +22,7 @@
 #include "Spring.h"
 
 #include "Cloth.h"
+#include "Jelly.h"
 
 
 //#include "WorldObject.h"
@@ -34,6 +35,7 @@ Camera myCamera;
 Surface3D theFloor;
 Rope myRope;
 Cloth myCloth;
+Jelly myJelly;
 
 
 
@@ -68,7 +70,7 @@ void init(void) {
 	glFogfv(GL_FOG_COLOR, black);
 	glFogf(GL_FOG_START, 3.5);
 	glFogf(GL_FOG_END, 5);
-	glEnable(GL_FOG);
+	//glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 
 	/*GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -122,7 +124,8 @@ void display(void){
 	//aCube.draw();
 	theFloor.draw();
 	myRope.draw();
-	//myCloth.draw();
+    myJelly.draw();
+	myCloth.draw();
 
 
 	// Dont forget to swap the buffers...
@@ -221,7 +224,6 @@ float timedelta(){
     finish = times(&tb);
 
     difference = finish - begin;
-//std::cout << difference << std::endl;
     begin = finish;
 
 	return (float)difference/(float)CLK_TCK; */
@@ -230,11 +232,10 @@ float timedelta(){
 }
 
 void time(void){
-	//std::cout << "time passes... " << std::endl;
 	float dt = timedelta();
 	theTime += dt;
 
-	int SLOWDOWN = 60;
+	int SLOWDOWN = 20;
 
 	if( (int)theTime % SLOWDOWN == 0){
 		
@@ -242,7 +243,8 @@ void time(void){
 			
 
         	myRope.timeStep(dt);
-		//myCloth.timeStep(dt);
+		myCloth.timeStep(dt);
+        myJelly.timeStep(dt);
 
 	}
 
@@ -252,7 +254,6 @@ void time(void){
 
 void visible(int vis) {
 	if (vis == GLUT_VISIBLE){
-		std::cout << "activate time... " << std::endl;
 		glutIdleFunc(time);
 	} else {
 		glutIdleFunc(NULL);
@@ -312,6 +313,8 @@ int main(int argc, char** argv)
 	myCloth = Cloth(start2);
 	myCloth.applyGlobalForce(&gravity);
 
+    myJelly = Jelly();
+    myJelly.applyGlobalForce(&gravity);
 	// Start and show the 3D world:
 	openGLrun();
 	

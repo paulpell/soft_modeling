@@ -39,7 +39,7 @@ void Spring::timeStep(float time){
 
 	// update the force
 	float l = getLength();
-	cout << "spring length " << l << endl;
+	//cout << "spring length " << l << endl;
 	float dx = (start->x - end->x) / l;
 	float dy = (start->y - end->y) / l;
 	float dz = (start->z - end->z) / l;
@@ -48,7 +48,7 @@ void Spring::timeStep(float time){
 	// if both are not anchors, divide the force by 2
 	if (!(start->isAnchor || end->isAnchor)) forceIntensity /= 2.0f;
 
-	cout << "spring update internal force to: " << dx*forceIntensity << "," << dy*forceIntensity << "," << dz*forceIntensity << endl;
+	//cout << "spring update internal force to: " << dx*forceIntensity << "," << dy*forceIntensity << "," << dz*forceIntensity << endl;
 
 	intForceS->x = dx * forceIntensity;
 	intForceS->y = dy * forceIntensity;
@@ -66,7 +66,7 @@ void Spring::setSize(int s){
 }
 
 void Spring::draw(){
-	std::cout << "spring draw?? whos calling that" << std::endl;
+	//std::cout << "spring draw?? whos calling that" << std::endl;
 	glLineWidth(size);
 	glColor3f(1.0, 1.0, 1.0);
 	float mcolor[] = { 1, 1, 1, 1.0f };

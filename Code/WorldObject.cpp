@@ -8,7 +8,6 @@ WorldObject::~WorldObject() {
 
 void WorldObject::timeStep(float time){
     
-	cout << "new timestep " << endl << endl << endl;
 
 	// slows down [not by reducing time, BUT reducing forces!]
 	time = time / .7;
