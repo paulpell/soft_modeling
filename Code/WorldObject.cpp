@@ -4,34 +4,33 @@ WorldObject::WorldObject(){
 }
 
 WorldObject::~WorldObject() {
-	// TODO
 }
 
 void WorldObject::timeStep(float time){
     
-    //list<Spring>::iterator it, end = springList.end();
-    list<Spring*>::iterator it, end = springList.end();
-    for (it = springList.begin(); it != end; it++) {
-        //(*it).timeStep(time);
-        (*it)->timeStep(time);
-    }
+	cout << "new timestep " << endl << endl << endl;
 
-    //list<MassPoint3D>::iterator it2, end2 = pointList.end();
-    list<MassPoint3D*>::iterator it2, end2 = pointList.end();
-    for (it2 = pointList.begin(); it2 != end2; it2++) {
-        //(*it2).timeStep(time);
-        (*it2)->timeStep(time);
-    }
+	// slows down [not by reducing time, BUT reducing forces!]
+	time = time / .7;
 
-    //cout << "ASOIDJAW:"<<endl;
+	// update all the internal spring forces
+	list<Spring*>::iterator it, end = springList.end();
+	for (it = springList.begin(); it != end; it++) {
+		(*it)->timeStep(time);
+	}
+
+	// update all the Masspoints
+	list<MassPoint3D*>::iterator it2, end2 = pointList.end();
+	for (it2 = pointList.begin(); it2 != end2; it2++) {
+		(*it2)->timeStep(time);
+	}
+
 }
 
 void WorldObject::draw(){
 	list<Spring*>::iterator it, listend = springList.end();
-	//list<Spring>::iterator it, listend = springList.end();
 	for (it = springList.begin(); it != listend; it++) {
-		//(*it).draw();
-        (*it)->draw();
+	        (*it)->draw();
 	}
 }
 
@@ -48,7 +47,7 @@ void WorldObject::applyGlobalForce( Force *f) {
 void WorldObject::pushSpring(MassPoint3D* start, MassPoint3D* end, float hardness){
 	// Create the connection Springs:
 	Spring* spring1 = new Spring(start, end, hardness);
-	spring1->setSize(1); // remove later
+	//spring1->setSize(1); // remove later
 
 	// Add Springs to the springList
 	springList.push_front(spring1);

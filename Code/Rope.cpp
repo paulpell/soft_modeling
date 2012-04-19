@@ -23,7 +23,7 @@ Rope::Rope(MassPoint3D* start){
 	start->setAnchor(true);
 
 	// properties of rope:
-	segments = 8; // must be at least 1 !!
+	segments = 2; // must be at least 1 !!
 	segsize = 3; // seglength without stress
 	radius = 0.5;
 	hardness = radius*10; // je dicker das seil desto fester :D
@@ -34,10 +34,10 @@ Rope::Rope(MassPoint3D* start){
 	int y = start->y;
 	for(int i=1; i<=segments; i++){
 		MassPoint3D* spline = new MassPoint3D(x+i*segsize, y, z);
-		cout << "adding" << x+i*segsize << " "  << y << " " << z << endl;
+		//cout << "adding" << x+i*segsize << " "  << y << " " << z << endl;
 		addNode(spline);
 	}
-cout << "Rope completed with " << pointList.size() << " points" << endl;
+	cout << "Rope with " << pointList.size() << " points" << endl;
 
     if (Rope::ropetextureName == 0)
         glGenTextures(1, &Rope::ropetextureName);
@@ -137,19 +137,35 @@ void Rope::draw(){
 			glTranslatef(x1, y1, z1);
 			glRotatef(90, 0, 1, 0); // because the rope hangs in x+ direction!
 			glRotatef(-angle, 1, 0, 0); // because the rope will be bent around x
-            GLUquadric* quad = gluNewQuadric();
-            gluQuadricTexture(quad, true);
-            gluQuadricDrawStyle(quad, GLU_FILL);
+			GLUquadric* quad = gluNewQuadric();
+			gluQuadricTexture(quad, true);
+			gluQuadricDrawStyle(quad, GLU_FILL);
 			gluCylinder(quad, radius, radius, seglen, 8, 1);
 
 			// APPLY TEXTURE HERE
 			// Texture ropetexture("rope.bmp", 512, 512);
-            //
-
 		glPopMatrix();
         
 	}
     glDisable(GL_TEXTURE_2D);
+
+	// draw a hardcoded fixed fixing pole:
+	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_shininess[] = { 50.0 };
+	
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+	glColor3f(.5,.2,.05); // brown
+ 	glPushMatrix();
+		glTranslatef(-10,25,0);
+		glScalef(1,30,1);
+		glutSolidCube(2);
+	glPopMatrix();
+ 	glPushMatrix();
+		glTranslatef(-5,51,0);
+		glScalef(10,1,1);
+		glutSolidCube(2);
+	glPopMatrix();
 
 }
 

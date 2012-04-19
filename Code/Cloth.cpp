@@ -45,7 +45,7 @@ Cloth::Cloth(MassPoint3D* start){
 				spline->setAnchor(true);
 			}
 			if(i==4 && j==4){
-				spline->setAnchor(true);
+				//spline->setAnchor(true);
 			}
 			
 			// debugg info:

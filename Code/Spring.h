@@ -7,6 +7,8 @@
 
 #include <math.h> // For sqrt()
 
+    using namespace std;
+
 class Spring {
 
 public:

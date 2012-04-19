@@ -29,34 +29,22 @@
 
 Camera myCamera;
 
+
+// Objects in the world:
 Surface3D theFloor;
-
-//Cube3D aCube;
-
 Rope myRope;
 Cloth myCloth;
 
-Spring mySpring; 
 
-bool isOrtho;
 
 GLfloat angle = 0;
 GLfloat angle2 = 0; 
 
 int moving, startx, starty;
 
-void create()
-{
-	//Texture texture2("cat.bmp", 128, 128);
-	//Vertex3D center(0,0,0);
-	//aCube = Cube3D(center, 40);
-	//aCube.addTexture(texture2, 1);
-}
 
-void init(void)
-{
-	isOrtho = false;
 
+void init(void) {
 	glClearColor (0.0, 0.0, 0.0, 0.0);
 	glShadeModel (GL_SMOOTH);
 
@@ -104,66 +92,51 @@ void init(void)
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 
-	glDisable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	//glDisable(GL_LIGHT0);
+	//glEnable(GL_LIGHTING);
+	//glEnable(GL_LIGHT0);
     
-    glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_POINT_SMOOTH);
     
 }
 
 
-void display(void)
-{
-
+void display(void){
+	// Init frame:
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	if (isOrtho){
-		glOrtho(-15, 15, -15, 15, -2.0, 500);
-	}else{
-		//glFrustum (-10, 10, -10, 10, 6, 500);
-		gluPerspective(60, 1, 6, 500);
-	}
-
+	gluPerspective(60, 1, 6, 500);
 	glEnable(GL_DEPTH_TEST);
 
+	// Update camera:
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt ( myCamera.XCoord,myCamera.YCoord,myCamera.ZCoord , 0,35,0, 0,1,0 );
+	gluLookAt ( myCamera.XCoord, myCamera.YCoord, myCamera.ZCoord , angle,angle2+35,0,    0,1,0);
+	//glRotatef(angle2, 1.0, 0.0, 0.0);
+	//glRotatef(angle, 0.0, 1.0, 0.0);
 
-	glRotatef(angle2, 1.0, 0.0, 0.0);
-	glRotatef(angle, 0.0, 1.0, 0.0);
 
+	
+	// iterate over all "objects" and paint them (TODO list of worldobjects)
+	//mySpring.draw();
 	//aCube.draw();
 	theFloor.draw();
-	
-	// TODO iterate over all "objects" and paint them
-	
-	//mySpring.draw();
-
 	myRope.draw();
-	//myRope2.draw();
+	//myCloth.draw();
 
-	myCloth.draw();
 
+	// Dont forget to swap the buffers...
 	glDisable(GL_DEPTH_TEST);
-
 	glutSwapBuffers();
 }
 
-void reshape(int width, int height)
-{
+void reshape(int width, int height){
    	 glViewport(0, 0, width, height);
 }
 
+/**** Mouse controls: ****/
 
-
-
-void
-mouse(int button, int state, int x, int y)
-{
+void mouse(int button, int state, int x, int y) {
   if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
     moving = 1;
     startx = x;
@@ -174,10 +147,7 @@ mouse(int button, int state, int x, int y)
   }
 }
 
-
-void
-motion(int x, int y)
-{
+void motion(int x, int y) {
   if (moving) {
     angle = angle + (x - startx);
     angle2 = angle2 + (y - starty);
@@ -187,43 +157,32 @@ motion(int x, int y)
   }
 }
 
-void keyboard(unsigned char key, int x, int y)
-{
+/**** Keyboard controls: ****/
+
+void keyboardSpecial(int key, int x, int y) {
+	if( key == GLUT_KEY_LEFT){
+		myCamera.XCoord++;
+	}
+	if( key == GLUT_KEY_RIGHT){
+		myCamera.XCoord--;
+	}
+	if( key == GLUT_KEY_UP){
+		myCamera.ZCoord++;
+	}
+	if( key == GLUT_KEY_DOWN){
+		myCamera.ZCoord--;
+	}
+	if( key == GLUT_KEY_PAGE_DOWN){
+		myCamera.YCoord--;
+	}
+	if( key == GLUT_KEY_PAGE_UP){
+		myCamera.YCoord++;
+	}
+}
+
+void keyboard(unsigned char key, int x, int y) {
 	//Keyboard aKeyboard;
 	//aKeyboard.processInput(key,x,y);
-
-	// moving sideways on x
-	if (key == 'q'){
-		myCamera.XCoord += 1;
-	}
-	if (key == 'w'){
-		myCamera.XCoord += 1;
-	}
-	if (key == 'e'){
-		myCamera.XCoord -= 1;
-	}
-	
-
-	if (key == 'a'){
-		myCamera.ZCoord += 1;
-	}
-	if (key == 's'){
-		myCamera.XCoord -= 1;
-	}
-	if (key == 'd'){
-		myCamera.ZCoord -= 1;
-	}
-
-
-	if (key == 'z'){
-		myCamera.YCoord += 1;
-	}
-	if (key == 'x'){
-		//myCamera.currentZangle += 10;
-	}
-	if (key == 'c'){
-		myCamera.YCoord -= 1;
-	}
 
 	if (key == 32){
 		Force gravity(0, -1, 0);
@@ -235,10 +194,6 @@ void keyboard(unsigned char key, int x, int y)
 
 	if (key == 27){
 		exit(0);
-	}
-
-	if (key == 'p'){
-		isOrtho = !isOrtho;
 	}
 
 	display();
@@ -279,13 +234,15 @@ void time(void){
 	float dt = timedelta();
 	theTime += dt;
 
-	if( (int)theTime % 10 == 0){
+	int SLOWDOWN = 60;
+
+	if( (int)theTime % SLOWDOWN == 0){
 		
 		// TODO perform calculations on all WorldObjects
 			
 
         	myRope.timeStep(dt);
-		myCloth.timeStep(dt);
+		//myCloth.timeStep(dt);
 
 	}
 
@@ -310,11 +267,11 @@ int openGLinit(int argc, char** argv){
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize (600, 600);
-	glutInitWindowPosition (100, 100);
+	glutInitWindowPosition (600, 100);
 	glutCreateWindow (argv[0]);
 
 	init ();
-	create();
+	//create();
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
@@ -325,9 +282,13 @@ int openGLinit(int argc, char** argv){
 	glutVisibilityFunc(visible);
 
 	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(keyboardSpecial);
 }
 
 
+
+
+/**** Create Objects and run! ****/
 
 int main(int argc, char** argv)
 {
@@ -345,11 +306,11 @@ int main(int argc, char** argv)
 
 
 
-	Force smallgravity(0, -0.1, 0);
+	//Force smallgravity(0, -0.1, 0);
 
 	MassPoint3D* start2 = new MassPoint3D(10, 30, 10);
 	myCloth = Cloth(start2);
-	myCloth.applyGlobalForce(&smallgravity);
+	myCloth.applyGlobalForce(&gravity);
 
 	// Start and show the 3D world:
 	openGLrun();
