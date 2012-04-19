@@ -67,10 +67,10 @@ void init(void) {
 
 	// Fog
 	float black[] = {.1, .1, .3, 0.7};
+	//glEnable(GL_FOG);
 	glFogfv(GL_FOG_COLOR, black);
 	glFogf(GL_FOG_START, 3.5);
 	glFogf(GL_FOG_END, 5);
-	//glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 
 	/*GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
