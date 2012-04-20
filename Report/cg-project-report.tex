@@ -1,0 +1,107 @@
+%
+% Memory based reasoning - Project
+% Specification
+%
+% created: 04. March 2012
+%
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+
+% not needed here:
+%\usepackage{graphicx}
+%\usepackage{hyperref}
+%\hypersetup{
+%    colorlinks,
+%    citecolor=black,
+%    filecolor=black,
+%    linkcolor=black,
+%    urlcolor=black
+%}
+
+\usepackage{url}
+
+\title{
+	\emph{A Report for}\\
+	\huge{\textbf{Soft Object Modelling \& Rendering} }\\
+	-Project-\\
+	Computer Graphics\\[2em]	
+}
+\author{
+	Philipp Fonteyn (MS11F010)\\
+	Paul Pellegrini (CS11F001)\\[2em]
+	\emph{Master of Technology}\\
+	\emph{Computer Science \& Engineering, IIT Madras}
+}
+\date{20th of April 2012}
+
+%
+% Document
+%
+\begin{document}
+\maketitle
+\newpage
+%\tableofcontents
+%\newpage
+
+%
+%
+%
+\section{Introduction}
+In modern computer science the field of computer graphics has gained much impulse due to faster performing devices, better and quicker memory access times and of course more efficient methods of algorithmic computation. Thus more and more realistic and complex scenes can be rendered by computational means and finally displayed on digital devices. This project will give a small overview over the technique of "soft modeling".
+%
+%
+%
+\section{Modeling Soft Objects}
+When modeling the world solid objects such as e.g. a cube have clearly defined static shapes and appearance in the three-dimensional space. So called "soft objects" on the other hand are more flexible and can take various shapes and forms. Storing softer objects and their interaction with their surroundings needs therefore more thought as the solids.\\[1em]
+%
+There have been several models developed for modeling soft objects. The following paper will focus on the spring model approach described by \cite{LSCS} and \cite{hair}\cite{gama}.\\[1em]
+%
+\subsection{Spring}
+A spring is a mechanical devices, that is able to store and release kinetical energy. With given material properties a spring can be bent and twisted and be keept in this state until the bending force is released and the spring will return to its orignial state. As a mathematical approximation of the real world spring there is the very simple rule called \textit{Hooke's law}:
+$$F=-kx$$
+Where the force $F$ existing between the two ends of the spring is equal to the difference of displacement $x$ from its original state into a material or force constant $k$. If a spring is changed in its length, then at the both ends a mass $m$ will be moved with the acceleration $a$:
+$$-kx = ma$$
+
+\subsection{Spring Model}
+In the so called spring model objects are modeled in such a way, that the respective masspoints of the object are connected by springs.
+
+\subsection{Wireframe}
+In the wireframe representation of an object we can see where appropiate masspoints are. Edges between these points can be drawn and considered either as a plain edge (e.g. for visial effects) or as a spring as above. Depending on how many springs we use in an object different forces will be present and convey different stability and behavior to the object if forces are applied.
+%
+%
+%
+\section{Algorithm}
+
+\section{Work Done}
+
+\section{Results}
+
+\section{Conclusion}
+%
+
+
+%
+% Literature / References
+%
+\newpage
+\nocite{hill}
+\nocite{rogersadams}
+\nocite{dam}
+\nocite{PBDM}
+\nocite{baker}
+\nocite{bakerGL}
+\nocite{IASDO}
+\nocite{LSCS}
+\nocite{DCMSM}
+\nocite{gama}
+\nocite{wiki}
+\nocite{hair}
+\nocite{pyGL}
+%\nocite{}
+\bibliographystyle{alpha}
+\bibliography{gc-bib}
+
+%
+% End of File
+%
+\end{document}
