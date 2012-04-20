@@ -9,8 +9,8 @@
 #include "Vector3D.h"
 #include <math.h>
 
-//#include <iostream>
-//using namespace std;
+#include <iostream>
+using namespace std;
 
 class Camera {
 public:

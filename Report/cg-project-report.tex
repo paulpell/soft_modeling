@@ -29,7 +29,7 @@
 \author{
 	Philipp Fonteyn (MS11F010)\\
 	Paul Pellegrini (CS11F001)\\[2em]
-	\emph{Master of Technology}\\
+	%\emph{Master of Technology}\\
 	\emph{Computer Science \& Engineering, IIT Madras}
 }
 \date{20th of April 2012}
@@ -40,8 +40,8 @@
 \begin{document}
 \maketitle
 \newpage
-%\tableofcontents
-%\newpage
+\tableofcontents
+\newpage
 
 %
 %
@@ -57,45 +57,49 @@ When modeling the world solid objects such as e.g. a cube have clearly defined s
 There have been several models developed for modeling soft objects. The following paper will focus on the spring model approach described by \cite{LSCS} and \cite{hair}\cite{gama}.\\[1em]
 %
 \subsection{Spring}
-A spring is a mechanical devices, that is able to store and release kinetical energy. With given material properties a spring can be bent and twisted and be keept in this state until the bending force is released and the spring will return to its orignial state. As a mathematical approximation of the real world spring there is the very simple rule called \textit{Hooke's law}:
+A spring is a mechanical device, that is able to store and release kinetic energy. With given material properties a spring can be bent and twisted, then kept in this state until the bending force is released and the spring will return to its orignial state. As a mathematical approximation of the real world spring there is the very simple rule called \textit{Hooke's law}:
 $$F=-kx$$
 Where the force $F$ existing between the two ends of the spring is equal to the difference of displacement $x$ from its original state into a material or force constant $k$. If a spring is changed in its length, then at the both ends a mass $m$ will be moved with the acceleration $a$:
 $$-kx = ma$$
 
 \subsection{Spring Model}
-In the so called spring model objects are modeled in such a way, that the respective masspoints of the object are connected by springs.
+In the so called spring model objects are modeled in such a way, that the respective masspoints of the object are connected by springs. From the formula above one can imagine the behavior of the spring. If one point is moved due to an external force, it creates a force within the spring, which will pull it back to its original state.
 
 \subsection{Wireframe}
-In the wireframe representation of an object we can see where appropiate masspoints are. Edges between these points can be drawn and considered either as a plain edge (e.g. for visial effects) or as a spring as above. Depending on how many springs we use in an object different forces will be present and convey different stability and behavior to the object if forces are applied.
+In the wireframe representation of an object we can see where appropiate masspoints are. Edges between these points can be drawn and considered either as a plain edge (e.g. for visual effects) or as a spring, as above. Depending on how many springs and which distribution of mass points we use in an object different forces will be present and convey different stability and behavior to the object if forces are applied.
 %
 %
 %
 \section{Algorithm}
+As algorithm we simply use the formula described above. After computing the internal forces of a spring it applies these forces to its mass points. Each mass point will sum up all forces pressing it and therefore with a certain acceleration move over a distance specified by acceleration into timedifference since last frame. These computations are repeated for each timestep.
 
 \section{Work Done}
-
+\subsection{Spring}
+A simple spring consists of two mass points at each end. If we position the spring in a horizontal plane and apply a force downwards on one end, the length of the spring will increase and internally the spring will compute a inward bound force, which pulls the string back to his original length. Has the spring reached his original length, the force pulling it back has not vanished and the spring will compress, hence yielding a relaxing force again. To prevent movement until infinity we add a dampening constant which will slowly bring the contraction-expansion cycle to an end.
 \subsection{Rope}
-normals using GLUT objects cylinder
-
+By simply chaining up several springs, one can create a soft object which will behave like a rope. With four to six segments and a fixed endpoint the rope developes a realistic behavior under the influence of gravitational downpull. To enhance the viewers experience we paint a textured GLUT cylinder around the single elements of the spline.
 \subsection{Cloth}
-
+After successful implementation of one-dimensional spring objects, we arrange the springs in a two-dimensional grid/net structure. The gravitation strongly pulls the net to a great extend simulating a very flexible material. To achieve a more "stable" cloth we add diagonal connections between diagonal adjacent mass points, too. In order to visualize the cloth, for each rectangle of the gridmesh we draw two adjacent triangle polygons. Following the approach of three-edged polygons which is used in the wireframe models of many surfaces and objects.
 \subsection{Jelly}
-countered effect of collapsing with 3D springs to enhance stability
-
+The last dimension is demonstrated with a soft object which actually has a volume. We arrange our springs in a three-dimensional grid/cube. The behavior of the cube looks not very realistic, because the volume can actually implode. We countered this "collapsing"-effect with springs within the volume itself to enhance stability, which is not guarantueed by springs only placed on the surface of the object.
 \subsection{Rendering}
-z depth buffer\\
-textureing\\
-camera\\
-fog
-
-
+Using the OpenGL framework for C++ we implemented a visualization of the effects described above. With texturing and lighting the soft objects we achieve a realistic scene.
+%z depth buffer\\
+%textureing\\
+%camera\\
+%fog
+\subsection{Problems}
+One problem we encountered during the implementation is the sudden "explosion" of the spring grid. We had to adjust the force constants within the springs to prevent this from happening. Due to our non-continuous calculation of spring forces, the forces existing in the spring itself may converge quickly shifting to $-\infty$ and $\infty$ -from one extrem to the other.\\[1em]
+We can not calculate the forces in a continuous manner, because we actually have two sorts of time measures in our system. For one part there is the (virtual) \textit{physical world time} and the hardware induced \textit{frame refresh rate}. They are not in sync and therefore produce this asymmetry.\\[1em]
+Finding the right constant for the spring constant and the mass points actual mass is therefore important for realistic simulation (or a super fast realtime displaydevice and graphics processor).
+%
 \section{Results}
 The main objectives of the project are solved:
 \begin{itemize}
-\item{Useage of wireframe to model objects}
+\item{Usage of wireframe to model objects}
 \item{then use of spring model to provide softness}
 \item{then rendering using OpenGL}
-\item{Effects of stress shown by physical forces such as gravity}
+\item{Effects of stress shown by physical forces such as gravity and wind}
 \end{itemize}
 
 \textit{Outlook for the project:}\\

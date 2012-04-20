@@ -193,7 +193,7 @@ void reshape(int width, int height){
 	glFogf(GL_FOG_START, 3.5);
 	glFogf(GL_FOG_END, 5);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
-	//glEnable(GL_FOG);
+	glEnable(GL_FOG);
 }
 
 void visible(int vis) {

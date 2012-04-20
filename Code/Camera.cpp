@@ -7,11 +7,11 @@ Camera::Camera()
 
 
 Camera::Camera(float x, float y, float z){
-	position = Vector3D(x, y, z);
-
+	position = Vector3D(x, 0, z);
+	h = Vector3D(0, y, z);
 	// TODO some hardcoded parameters...
 	y_rotation = -90;
-	z_rotation = 140;
+	z_rotation = 135;
 	distance = 10;	
 }
 
@@ -26,8 +26,8 @@ void Camera::turn_horizontal(float a){
 void Camera::turn_vertical(float a){
 	z_rotation += a;
 	// limit to 'human behavior':
-	if (z_rotation < 40){
-		z_rotation = 40;
+	if (z_rotation < 100){
+		z_rotation = 100;
 	}
 	if (z_rotation > 200){
 		z_rotation = 200;
@@ -67,10 +67,10 @@ Vector3D Camera::getViewingDirection(){
 
 	// vertical tilt:	
 	degree = z_rotation * 2 * PI / 360;
-	float y = cos(degree) + sin(degree);
+	float y = sin(degree) + cos(degree);
 
 	// 
-	Vector3D v(x*distance, y*distance, z*distance);
+	Vector3D v(x*distance, y*15, z*distance);
 
 	// TODO replace this with Vector Operator overloading...
 	Vector3D q(position.x+v.x, position.y+h.y+v.y, position.z+v.z);
@@ -82,5 +82,7 @@ Vector3D Camera::getViewingDirection(){
 }
 
 Vector3D Camera::getPosition(){
-	return position;
+	Vector3D q(position.x, h.y, position.z);
+	return q;
+	//return position;
 }
