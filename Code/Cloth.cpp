@@ -135,7 +135,11 @@ float Cloth::vecangle(float x1, float y1, float z1, float x2, float y2, float z2
 
 void Cloth::draw(){
 
-	//WorldObject::draw();
+	#define SPRING_FRAME 0
+
+	#if SPRING_FRAME
+		WorldObject::draw();
+	#else
 
 	for(int i=0; i<segments; i++){
 	for(int j=0; j<segments; j++){
@@ -166,8 +170,10 @@ void Cloth::draw(){
 			glTexCoord2d(0.0, 1.0);
 			glVertex3f(c->x, c->y, c->z);
 		glEnd();
-		glDisable(GL_TEXTURE_2D);///*
+		glDisable(GL_TEXTURE_2D);
 	}
 	}
+
+	#endif
 
 }

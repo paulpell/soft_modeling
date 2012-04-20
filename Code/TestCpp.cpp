@@ -5,6 +5,8 @@
 // Description : Modeling Soft Objects with OpenGL
 //============================================================================
 
+#define SPRING_FRAME 1
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -28,6 +30,8 @@
 //#include "WorldObject.h"
 
 
+
+
 Camera myCamera;
 
 // Objects in the world:
@@ -43,8 +47,6 @@ int moving, startx, starty;
 void init(void) {
 	glClearColor (0.1, 0.2, 0.7, 0.0);
 
-
-
 	glShadeModel (GL_SMOOTH);
 	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_BLEND);
@@ -55,10 +57,11 @@ void init(void) {
 	myCamera = Camera(0, 30, 60);
 
 	// Create the Floor
-	Vertex3D a(-128, 0, -128);	
-	Vertex3D b(-128, 0, 128);
-	Vertex3D c(128, 0, 128);
-	Vertex3D d(128, 0, -128);
+	int fw = 64;
+	Vertex3D a(-fw, 0, -fw);	
+	Vertex3D b(-fw, 0, fw);
+	Vertex3D c(fw, 0, fw);
+	Vertex3D d(fw, 0, -fw);
 	theFloor = Surface3D(a, b, c, d);
 	theFloor.setColor(.1, .3, .1);
 	Texture grass("grass.bmp", 512, 512);
@@ -301,7 +304,7 @@ void createObjects(){
 	// Add initial objects and forces to our world:
 	Force* gravity = new Force(0, -1, 0);
 
-	MassPoint3D* start = new MassPoint3D(0, 50, 10);
+	MassPoint3D* start = new MassPoint3D(0, 50, 0);
 	myRope = Rope(start);
 	myRope.applyGlobalForce(gravity);
 
@@ -316,6 +319,7 @@ void createObjects(){
 	myFlag = Cloth(start3);
 	myFlag.applyGlobalForce(gravity);
 	myFlag.applyGlobalForce(windCloth);
+
 
 	myJelly = Jelly();
 	myJelly.applyGlobalForce(gravity);

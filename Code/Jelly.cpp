@@ -112,6 +112,13 @@ inline float Jelly::normy(float f) { return (f - basey) / size;}
 inline float Jelly::normz(float f) { return (f - basez) / size;}
 
 void Jelly::draw(){
+
+	#define SPRING_FRAME 0
+
+	#if SPRING_FRAME
+		WorldObject::draw();
+	#else
+
     if (textureName == 0) {
         glGenTextures(1, &textureName);
         glBindTexture(GL_TEXTURE_2D, textureName);
@@ -135,6 +142,9 @@ void Jelly::draw(){
         glEnd();
     }
     glDisable(GL_TEXTURE_2D);
+
+
+	#endif
 }
 
 
