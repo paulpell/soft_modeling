@@ -6,32 +6,40 @@
 #include <GL/glut.h>
 
 #include "Keyboard.h"
+#include "Vector3D.h"
+#include <math.h>
+
+//#include <iostream>
+//using namespace std;
 
 class Camera {
 public:
 	Camera();
-	Camera(Keyboard k);
+	Camera(float x, float y, float z);
 	virtual ~Camera();
 
 	void move_camera();
 
-	//void movement(char key);
+	void move_left();
+	void move_right();
+	void move_up();
+	void move_down();
+	void move_forward();
+	void move_back();
 
+	void turn_vertical(float a);
+	void turn_horizontal(float a);
 
-//private:
+	//int XCoord, YCoord, ZCoord;
+	//int currentXangle, currentYangle ,currentZangle;
 
-	Keyboard keyboard;
+	Vector3D getViewingDirection();
+	Vector3D getPosition();
 
-	void rotate_xaxis(int phi);
-	void rotate_yaxis(int phi);
-	void rotate_zaxis(int phi);
+private:
 
-	void move_toX(int x);
-	void move_toY(int y);
-	void move_toZ(int z);
-
-	int XCoord, YCoord, ZCoord;
-	int currentXangle, currentYangle ,currentZangle;
+	Vector3D position, h;
+	float z_rotation, y_rotation, distance;
 
 };
 

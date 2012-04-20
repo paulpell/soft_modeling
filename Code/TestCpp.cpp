@@ -36,26 +36,19 @@ Surface3D theFloor;
 Rope myRope;
 Cloth myCloth;
 Jelly myJelly;
-
-
-
-GLfloat angle = 0;
-GLfloat angle2 = 0; 
+ 
 
 int moving, startx, starty;
 
-
-
 void init(void) {
-	glClearColor (0.0, 0.0, 0.0, 0.0);
+	glClearColor (0.1, 0.2, 0.7, 0.0);
 	glShadeModel (GL_SMOOTH);
+	glEnable(GL_POINT_SMOOTH);
 
-	myCamera = Camera();
-	myCamera.XCoord = 0;
-	myCamera.YCoord = 30;	
-	myCamera.ZCoord = 60;
+	// Set camera:
+	myCamera = Camera(0, 30, 60);
 
-	// Floor
+	// Create the Floor
 	Vertex3D a(-128, 0, -128);	
 	Vertex3D b(-128, 0, 128);
 	Vertex3D c(128, 0, 128);
@@ -65,144 +58,32 @@ void init(void) {
 	Texture grass("grass.bmp", 512, 512);
 	theFloor.setTexture(grass);
 
-	// Fog
-	float black[] = {.1, .1, .3, 0.7};
-	//glEnable(GL_FOG);
-	glFogfv(GL_FOG_COLOR, black);
-	glFogf(GL_FOG_START, 3.5);
-	glFogf(GL_FOG_END, 5);
-	glFogi(GL_FOG_MODE, GL_LINEAR);
-
-	/*GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat mat_shininess[] = { 50.0 };
-	GLfloat light_position[] = { 0.0, 0.0, 0.0, 0.0 };
-
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-	
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);*/
-
+	// Create a light source and switch it on:
+	// Set params:
 	GLfloat ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
 	GLfloat diffuseLight[] = { 0.8f, 0.8f, 0.8, 1.0f };
 	GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	GLfloat position[] = { -1.5f, 1.0f, -4.0f, 1.0f };
-
-
-	// Assign created components to GL_LIGHT0
+	// Assign to GL_LIGHT0
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
-
+	// Switch on GL_LIGHT0 and GL_LIGHTING
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+
+	// Put some Fog
+	float black[] = {.1, .1, .3, 0.7};
+	glFogfv(GL_FOG_COLOR, black);
+	glFogf(GL_FOG_START, 3.5);
+	glFogf(GL_FOG_END, 5);
+	glFogi(GL_FOG_MODE, GL_EXP2);
+	//glEnable(GL_FOG);
     
-	glEnable(GL_POINT_SMOOTH);
-    
 }
 
-
-void display(void){
-	// Init frame:
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(60, 1, 6, 500);
-	glEnable(GL_DEPTH_TEST);
-
-	// Update camera:
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt ( myCamera.XCoord, myCamera.YCoord, myCamera.ZCoord , angle,angle2+35,0,    0,1,0);
-	//glRotatef(angle2, 1.0, 0.0, 0.0);
-	//glRotatef(angle, 0.0, 1.0, 0.0);
-
-
-	
-	// iterate over all "objects" and paint them (TODO list of worldobjects)
-	//mySpring.draw();
-	//aCube.draw();
-	theFloor.draw();
-	myRope.draw();
-	myJelly.draw();
-	myCloth.draw();
-
-
-	// Dont forget to swap the buffers...
-	glDisable(GL_DEPTH_TEST);
-	glutSwapBuffers();
-}
-
-void reshape(int width, int height){
-   	 glViewport(0, 0, width, height);
-}
-
-/**** Mouse controls: ****/
-
-void mouse(int button, int state, int x, int y) {
-  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-    moving = 1;
-    startx = x;
-    starty = y;
-  }
-  if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
-    moving = 0;
-  }
-}
-
-void motion(int x, int y) {
-  if (moving) {
-    angle = angle + (x - startx);
-    angle2 = angle2 + (y - starty);
-    startx = x;
-    starty = y;
-    glutPostRedisplay();
-  }
-}
-
-/**** Keyboard controls: ****/
-
-void keyboardSpecial(int key, int x, int y) {
-	if( key == GLUT_KEY_LEFT){
-		myCamera.XCoord++;
-	}
-	if( key == GLUT_KEY_RIGHT){
-		myCamera.XCoord--;
-	}
-	if( key == GLUT_KEY_UP){
-		myCamera.ZCoord++;
-	}
-	if( key == GLUT_KEY_DOWN){
-		myCamera.ZCoord--;
-	}
-	if( key == GLUT_KEY_PAGE_DOWN){
-		myCamera.YCoord--;
-	}
-	if( key == GLUT_KEY_PAGE_UP){
-		myCamera.YCoord++;
-	}
-}
-
-void keyboard(unsigned char key, int x, int y) {
-	//Keyboard aKeyboard;
-	//aKeyboard.processInput(key,x,y);
-
-	if (key == 32){
-		Force gravity(0, -1, 0);
-		MassPoint3D* start = new MassPoint3D(0, 0, 0);
-		myRope = Rope(start);
-		myRope.applyGlobalForce(&gravity);
-	}
-
-
-	if (key == 27){
-		exit(0);
-	}
-
-	display();
-}
-
-
+/**** Methods for time measureing ****/
 
 float theTime = 0;
 
@@ -252,6 +133,37 @@ void time(void){
 
 }
 
+/**** OpenGL Display and Reshape ****/
+
+void display(void){
+	// Init frame:
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+
+	// Update camera:
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60, 1, 6, 500);
+	Vector3D v = myCamera.getViewingDirection();
+	Vector3D p = myCamera.getPosition();
+	gluLookAt (p.x,p.y,p.z,   v.x,v.y,v.z,   0,1,0);
+	
+	// iterate over all "objects" and paint them (TODO list of worldobjects)
+
+	theFloor.draw();
+	myRope.draw();
+	myJelly.draw();
+	myCloth.draw();
+
+	// Don't forget to swap the buffers...
+	glDisable(GL_DEPTH_TEST);
+	glutSwapBuffers();
+}
+
+void reshape(int width, int height){
+   	 glViewport(0, 0, width, height);
+}
+
 void visible(int vis) {
 	if (vis == GLUT_VISIBLE){
 		glutIdleFunc(time);
@@ -259,6 +171,78 @@ void visible(int vis) {
 		glutIdleFunc(NULL);
 	}
 }
+
+/**** OpenGL Mouse controls: ****/
+
+void mouse(int button, int state, int x, int y) {
+  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    moving = 1;
+    startx = x;
+    starty = y;
+  }
+  if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+    moving = 0;
+  }
+}
+
+void motion(int x, int y) {
+	if (moving) {
+		//angle = angle + (x - startx);
+
+		myCamera.turn_horizontal( x-startx );
+		myCamera.turn_vertical( y-starty );
+
+		//angle2 = angle2 + (y - starty);
+		startx = x;
+		starty = y;
+		glutPostRedisplay();
+	}
+}
+
+/**** OpenGL Keyboard controls: ****/
+
+void keyboardSpecial(int key, int x, int y) {
+	if( key == GLUT_KEY_LEFT){
+		//myCamera.XCoord++;
+		myCamera.move_left();
+	}
+	if( key == GLUT_KEY_RIGHT){
+		//myCamera.XCoord--;
+		myCamera.move_right();
+	}
+	if( key == GLUT_KEY_UP){
+		myCamera.move_forward();
+	}
+	if( key == GLUT_KEY_DOWN){
+		myCamera.move_back();
+	}
+	if( key == GLUT_KEY_PAGE_DOWN){
+		myCamera.move_down();
+	}
+	if( key == GLUT_KEY_PAGE_UP){
+		myCamera.move_up();
+	}
+}
+
+void keyboard(unsigned char key, int x, int y) {
+
+	/*if (key == 32){
+		Force gravity(0, -1, 0);
+		MassPoint3D* start = new MassPoint3D(0, 0, 0);
+		myRope = Rope(start);
+		myRope.applyGlobalForce(&gravity);
+	}*/
+
+	if (key == 27){
+		exit(0);
+	}
+
+	glutPostRedisplay();
+}
+
+
+
+/**** OpenGL init and run ****/
 
 void openGLrun(){
 	glutMainLoop();
@@ -285,9 +269,6 @@ int openGLinit(int argc, char** argv){
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(keyboardSpecial);
 }
-
-
-
 
 /**** Create Objects and run! ****/
 
