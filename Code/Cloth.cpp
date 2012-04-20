@@ -24,9 +24,9 @@ Cloth::Cloth(MassPoint3D* start){
 	// anchor is picked manually
 
 	// properties of rope:
-	segments = 4; // must be at least 1 !!
-	segsize = 3; // seglength without stress
-	hardness = 2; // je dicker das seil desto fester :D
+	segments = 8; // must be at least 1 !!
+	segsize = 2; // seglength without stress
+	hardness = 4; // je dicker das seil desto fester :D
 
 	// adding points to cloth mesh
 	int x = start->x;
@@ -78,7 +78,15 @@ Cloth::Cloth(MassPoint3D* start){
 }
 
 
-
+void Cloth::setFlag() {
+    for (int i=0; i<segments+1; i++) {
+        for (int j=0; j<segments+1; j++) {
+            if (i == 0) meshNet[i][j]->setAnchor(true);
+            else meshNet[i][j]->setAnchor(false);
+        }
+    }
+}
+    
 
 
 // this was used back when we added points manually....

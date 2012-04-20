@@ -3,14 +3,23 @@
 
 
 Jelly::Jelly() {
+    init();
+}
 
+Jelly::Jelly(float x, float y, float z) {
+    basex = x;
+    basey = y;
+    basez = z;
+    init();
+}
 
-
+void Jelly::init() {
     size = 5;
     segments = 1;
-    float hardness = 1;
+    hardness = 1;
+    melting = false;
 
-    basex = -20, basey = 20, basez = 0;
+    //basex = -20, basey = 20, basez = 0;
 
     mesh = new MassPoint3D***[segments+1];
     faces = new MassPoint3D**[6];
@@ -110,6 +119,21 @@ Jelly::~Jelly(){}
 inline float Jelly::normx(float f) { return (f - basex) / size;}
 inline float Jelly::normy(float f) { return (f - basey) / size;}
 inline float Jelly::normz(float f) { return (f - basez) / size;}
+
+void Jelly::timeStep(float dt) {
+    WorldObject::timeStep(dt);
+    if (melting) {
+	    list<Spring*>::iterator it, end = springList.end();
+	    for (it = springList.begin(); it != end; it++) {
+	   // 	(*it)->org_length *= .99;
+	    	(*it)->hardness *= .90;
+	    }
+    }
+}
+
+void Jelly::setMelting() {
+    melting = true;
+}
 
 void Jelly::draw(){
 

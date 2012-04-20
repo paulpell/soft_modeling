@@ -21,6 +21,7 @@ public:
 	Cloth(MassPoint3D* start);
 
 	void reset();
+    void setFlag();
 	void draw();
 
 	// sry nicht nice

@@ -12,7 +12,6 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 
-//#include "Cube3D.h"
 #include "Camera.h"
 #include "Vertex3D.h"
 #include "Vector3D.h"
@@ -39,7 +38,9 @@ Surface3D theFloor;
 Rope myRope;
 Cloth myCloth, myFlag;
 Jelly myJelly;
+Jelly myJelly2;
  
+Force* jellyAnimeForce;
 Force* windCloth;
 
 int moving, startx, starty;
@@ -48,10 +49,15 @@ void init(void) {
 	glClearColor (0.1, 0.2, 0.7, 0.0);
 
 	glShadeModel (GL_SMOOTH);
-	glEnable(GL_POINT_SMOOTH);
+	//glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_COLOR_MATERIAL);
+
+    // aliasing (anti)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+
 
 	// Set camera:
 	myCamera = Camera(0, 30, 60);
@@ -113,20 +119,32 @@ float timedelta(){
     return .6; // for now a good value
 }
 
+inline float randf() {
+    return (float)rand()/(float)RAND_MAX;
+}
+
 void windy(){
 	// change the wind dynamically
-	float pm = (float)rand()/(float)RAND_MAX;
-	float dr = (float)rand()/(float)RAND_MAX;
+	float pm = randf();
+	float dr = randf();
 	if (pm>0.5)
 		windCloth->x += dr/15;
 	else
 		windCloth->x -= dr/15;
-	pm = (float)rand()/(float)RAND_MAX;
-	dr = (float)rand()/(float)RAND_MAX;
+	pm = randf();//(float)rand()/(float)RAND_MAX;
+	dr = randf();//(float)rand()/(float)RAND_MAX;
 	if (pm>0.5)
 		windCloth->z += dr/15;
 	else
 		windCloth->z -= dr/15;
+}
+
+void jellyForce() {
+    float factor = .3;
+    float x = factor * (.5 - randf());
+    float z = factor * (.5 - randf());
+    jellyAnimeForce->x = x;
+    jellyAnimeForce->z = z;
 }
 
 void time(void){
@@ -143,6 +161,8 @@ void time(void){
         	myRope.timeStep(dt);
 		myCloth.timeStep(dt);
 		myJelly.timeStep(dt);
+		myJelly2.timeStep(dt);
+        jellyForce();
 
 		myFlag.timeStep(dt);
 	
@@ -161,7 +181,7 @@ void time(void){
 void display(void){
 	// Init frame:
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 
 	// Update camera:
 	glMatrixMode(GL_PROJECTION);
@@ -176,24 +196,34 @@ void display(void){
 	theFloor.draw();
 	myRope.draw();
 	myJelly.draw();
+	myJelly2.draw();
 	myCloth.draw();
 	myFlag.draw();
 
+
 	// Don't forget to swap the buffers...
-	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_DEPTH_TEST);
 	glutSwapBuffers();
 }
 
 void reshape(int width, int height){
 	glViewport(0, 0, width, height);
 
+	glEnable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60, 1, 6, 500);
 	// Put some Fog
-	float black[] = {1, 0, 0, 0};
+    //glMatrixMode(GL_MODELVIEW);
+	float black[] = {0, 0, .3, 0.6};
+    //glEnable(GL_FOG);
 	glFogfv(GL_FOG_COLOR, black);
-	glFogf(GL_FOG_START, 3.5);
-	glFogf(GL_FOG_END, 5);
-	glFogi(GL_FOG_MODE, GL_LINEAR);
-	glEnable(GL_FOG);
+    glFogf(GL_FOG_DENSITY, .3);
+    //glHint (GL_FOG_HINT, GL_NICEST);
+	//glFogf(GL_FOG_START, -50);
+	//glFogf(GL_FOG_END, -100);
+	//glFogi(GL_FOG_MODE, GL_LINEAR);
+	//glFogi(GL_FOG_MODE, GL_EXP2);
 }
 
 void visible(int vis) {
@@ -317,13 +347,21 @@ void createObjects(){
 	windCloth = new Force(0, 0, -0.5);
 	MassPoint3D* start3 = new MassPoint3D(05, 40, -50);
 	myFlag = Cloth(start3);
+    //myFlag.setFlag();
 	myFlag.applyGlobalForce(gravity);
 	myFlag.applyGlobalForce(windCloth);
 
 
-	myJelly = Jelly();
-	myJelly.applyGlobalForce(gravity);
+    jellyAnimeForce = new Force(0,0,0);
+	myJelly = Jelly(-20, 20, 0);
+	//myJelly.applyGlobalForce(gravity);
+    myJelly.applyGlobalForce(jellyAnimeForce);
 
+    /*
+	myJelly2 = Jelly(-20, 20, 30);
+    myJelly2.applyGlobalForce(jellyAnimeForce);
+    myJelly2.setMelting();
+*/
 
 }
 
