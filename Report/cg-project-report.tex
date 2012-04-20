@@ -74,9 +74,37 @@ In the wireframe representation of an object we can see where appropiate masspoi
 
 \section{Work Done}
 
+\subsection{Rope}
+normals using GLUT objects cylinder
+
+\subsection{Cloth}
+
+\subsection{Jelly}
+countered effect of collapsing with 3D springs to enhance stability
+
+\subsection{Rendering}
+z depth buffer\\
+textureing\\
+camera\\
+fog
+
+
 \section{Results}
+The main objectives of the project are solved:
+\begin{itemize}
+\item{Useage of wireframe to model objects}
+\item{then use of spring model to provide softness}
+\item{then rendering using OpenGL}
+\item{Effects of stress shown by physical forces such as gravity}
+\end{itemize}
+
+\textit{Outlook for the project:}\\
+With advanced time measuring methods the physical frame rate should be adapted to the graphical frame rate. Since our computations on the objects are functions of time $\Delta t$ the painting with is done by the OpenGL framework is a function of the speed of the graphics processor and displaying device (measured in $frames-per-second=fps$). Due to different $fps$ on different devices the physical framerate has to be adjusted to fit what the eye is seeing to improve the smoothness of the animation.\\[1em]
+%
+% Addition of FOG and COllision Detection ??
 
 \section{Conclusion}
+With a very simple physical equation the Spring Mass Model achieves a very realistic behavior of objects. If we work with more advanced models, with denser wireframes or within-springs with different hardness, even more advanced objects can be modelled. Since the Wireframe approach to model objects in computer graphics is very wastly present the Spring Mass Model is quite handy, since it can be easily put onto an existing wireframe, additional springs maybe added though to keep the object solid, otherwise it would simply collapse into itself.
 %
 
 
