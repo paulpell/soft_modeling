@@ -23,7 +23,7 @@ Rope::Rope(MassPoint3D* start){
 	start->setAnchor(true);
 
 	// properties of rope:
-	segments = 5; // must be at least 1 !!
+	segments = 6; // must be at least 1 !!
 	radius = .7;
 	segsize = radius * 6; // seglength without stress
 	hardness = radius*10; // je dicker das seil desto fester :D
@@ -37,7 +37,7 @@ Rope::Rope(MassPoint3D* start){
 		//cout << "adding" << x+i*segsize << " "  << y << " " << z << endl;
 		addNode(spline);
 	}
-	cout << "Rope with " << pointList.size() << " points" << endl;
+	//cout << "Rope with " << pointList.size() << " points" << endl;
 
     if (Rope::ropetextureName == 0)
         glGenTextures(1, &Rope::ropetextureName);
@@ -157,13 +157,15 @@ void Rope::draw(){
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 	glColor3f(.5,.2,.05); // brown
  	glPushMatrix();
-		glTranslatef(-10,25,0);
+		glTranslatef(-10,25,10);
+		//glRotatef(50, 0,1,0);
 		glScalef(1,30,1);
 		glutSolidCube(2);
 	glPopMatrix();
  	glPushMatrix();
-		glTranslatef(-5,51,0);
-		glScalef(10,1,1);
+		glTranslatef(-5,51,10);
+		//glRotatef(50, 0,1,0);
+		glScalef(9,1,1);
 		glutSolidCube(2);
 	glPopMatrix();
 

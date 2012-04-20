@@ -24,8 +24,8 @@ Cloth::Cloth(MassPoint3D* start){
 	// anchor is picked manually
 
 	// properties of rope:
-	segments = 9; // must be at least 1 !!
-	segsize = 1; // seglength without stress
+	segments = 4; // must be at least 1 !!
+	segsize = 3; // seglength without stress
 	hardness = 2; // je dicker das seil desto fester :D
 
 	// adding points to cloth mesh
@@ -34,41 +34,40 @@ Cloth::Cloth(MassPoint3D* start){
 	int y = start->y;
 
 	meshNet = new MassPoint3D**[segments];
-	for(int i=1; i<=segments; i++){
-		meshNet[i-1] = new MassPoint3D*[segments];
-		for(int j=1; j<=segments; j++){
+	for(int i=0; i<=segments; i++){
+		meshNet[i] = new MassPoint3D*[segments];
+		for(int j=0; j<=segments; j++){
 
 			// create a new MassPoint for this object:
 			MassPoint3D* spline = new MassPoint3D(x+i*segsize, y, z+j*segsize, 4);
 
-
 			// some hardcoded anchors
-			if(i==1 && j==1){
+			if(i==0 && j==0){
 				spline->setAnchor(true);
 			}
-			if(i==segments/2  && j==segments/2) {
+			if(j==0  && i==segments-1) {
 				spline->setAnchor(true);
 			}
 			if(i==segments - 1  && j==segments - 1) {
 				spline->setAnchor(true);
 			}
 			
-			// debugg info:
-
 			// put them in pointList for physics effects (superclass compatibility!)
 			pointList.push_front(spline); 
 
 			// also put them into a matrix (makes creating springs much easier!)
-			meshNet[i-1][j-1] = spline;
+			meshNet[i][j] = spline;
 
 		}
 	}
+
+	//cout << "coth with points: " << pointList.size() << endl;
 
 	// compute internal Springs:
 	addSprings();
 
 	// prePare texture:
-	Texture texture = Texture("cloth.bmp", 512, 512);
+	Texture texture = Texture("cloth2.bmp", 512, 512);
 
 	glGenTextures(1, &textureName);
 	glBindTexture(GL_TEXTURE_2D, textureName);
@@ -88,31 +87,33 @@ void Cloth::addSprings(){
 	MassPoint3D *s, *e;
 
 	// add horizontal springs
-	for(int i=1; i<=segments; i++){
-		for(int j=2; j<=segments; j++){
-			s = meshNet[i-1][j-2];
-			e = meshNet[i-1][j-1];
+	for(int i=0; i<=segments; i++){
+		for(int j=0; j<segments; j++){
+			s = meshNet[i][j];
+			e = meshNet[i][j+1];
 			pushSpring(s, e, hardness);
 		}
 	}
 
 	// add vertical springs
-	for(int i=2; i<=segments; i++){
-		for(int j=1; j<=segments; j++){
-			s = meshNet[i-1][j-1];
-			e = meshNet[i-2][j-1];
+	for(int i=0; i<=segments; i++){
+		for(int j=0; j<segments; j++){
+			s = meshNet[j][i];
+			e = meshNet[j+1][i];
 			pushSpring(s, e, hardness);
 		}
-	}	
+	}
 
-	// add diagonal springs
-	for(int i=2; i<=segments; i++){
-		for(int j=2; j<=segments; j++){
-			s = meshNet[i-1][j-2];
-			e = meshNet[i-2][j-1];
+	// add diagonal springs (optional)
+	for(int i=0; i<segments; i++){
+		for(int j=0; j<segments; j++){
+			s = meshNet[i][j];
+			e = meshNet[i+1][j+1];
 			pushSpring(s, e, hardness);
 		}
-	}	
+	}
+
+	//cout << "coth with springs: " << springList.size() << endl;	
 }
 
 
@@ -133,80 +134,40 @@ float Cloth::vecangle(float x1, float y1, float z1, float x2, float y2, float z2
 }
 
 void Cloth::draw(){
-	//cout << "cloth draw" << endl;
+
 	//WorldObject::draw();
 
-	// some init:
-	/*list<Spring*>::iterator seghead, listend;	
-	float angle = 0;
-	float seglen = segsize;
-	
-	// now loop over segments:
-	seghead = springList.begin();
-	listend = springList.end();
+	for(int i=0; i<segments; i++){
+	for(int j=0; j<segments; j++){
 
-	while ( seghead != listend ) {
-		cout << "cloth draw seg" << endl;
-		// get the coords of segment:
-		float x1 = (*seghead)->end->x;
-		float y1 = (*seghead)->end->y;
-		float z1 = (*seghead)->end->z;
+		MassPoint3D* a = meshNet[i][j];
+		MassPoint3D* b = meshNet[i][j+1];
+		MassPoint3D* c = meshNet[i+1][j];
+		MassPoint3D* d = meshNet[i+1][j+1];
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, textureName);
 
-		float x2 = (*seghead)->start->x;
-		float y2 = (*seghead)->start->y;
-		float z2 = (*seghead)->start->z;
-
-		seghead++;
-
-		// Draw MassPoints + Wireframe of the Cloth: [only for debugging...]
-		glPointSize(4);
-		glColor3f(1,0,0);
-		glBegin(GL_POINT);
-			glVertex3f(x1, y1, z1+0.1);// slightly dislocated so it is visible
-			//cout << x1 << y1 << z1 << endl;
+		glColor3f(1,1,1);
+		float mcolor[] = { 1, 1, 1, 1.0f };
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mcolor);	
+		glBegin(GL_POLYGON);
+			glTexCoord2d(0.0, 0.0);
+			glVertex3f(a->x, a->y, a->z);
+			glTexCoord2d(1.0, 0.0);
+			glVertex3f(b->x, b->y, b->z);
+			glTexCoord2d(0.0, 1.0);
+			glVertex3f(c->x, c->y, c->z);
 		glEnd();
-		glColor3f(0,0,1);
-		glBegin(GL_POINT);
-			glVertex3f(x2, y2, z2-0.1); // slightly dislocated so it is visible
+		glBegin(GL_POLYGON);
+			glTexCoord2d(0.0, 0.0);
+			glVertex3f(d->x, d->y, d->z);
+			glTexCoord2d(1.0, 0.0);
+			glVertex3f(b->x, b->y, b->z);
+			glTexCoord2d(0.0, 1.0);
+			glVertex3f(c->x, c->y, c->z);
 		glEnd();
-		glLineWidth(1);
-		glColor3f(.7,.7,.7);
-		glBegin(GL_LINE);
-			glVertex3f(x1, y1, z1);			
-			glVertex3f(x2, y2, z2);
-		glEnd();
-	}*/
-
-	for(int i=0; i<segments-1; i++){
-	for(int j=0; j<segments-1; j++){
-
-	MassPoint3D* a = meshNet[i][j];
-	MassPoint3D* b = meshNet[i][j+1];
-	MassPoint3D* c = meshNet[i+1][j+1];
-	MassPoint3D* d = meshNet[i+1][j];
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textureName);
-
-	glColor3f(1,1,1);
-	float mcolor[] = { 1, 1, 1, 1.0f };
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mcolor);	
-	glBegin(GL_POLYGON);
-		glTexCoord2d(0.0, 0.0);
-		glVertex3f(a->x, a->y, a->z);
-		glTexCoord2d(0.0, 1.0);
-		glVertex3f(b->x, b->y, b->z);
-		glTexCoord2d(1.0, 1.0);
-		glVertex3f(c->x, c->y, c->z);
-	glEnd();
-	glBegin(GL_POLYGON);
-		glTexCoord2d(0.0, 0.0);
-		glVertex3f(d->x, d->y, d->z);
-		glTexCoord2d(0.0, 1.0);
-		glVertex3f(b->x, b->y, b->z);
-		glTexCoord2d(1.0, 1.0);
-		glVertex3f(c->x, c->y, c->z);
-	glEnd();	
-	glDisable(GL_TEXTURE_2D);
-	}}
+		glDisable(GL_TEXTURE_2D);///*
+	}
+	}
 
 }

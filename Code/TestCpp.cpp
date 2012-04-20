@@ -10,7 +10,7 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 
-#include "Cube3D.h"
+//#include "Cube3D.h"
 #include "Camera.h"
 #include "Vertex3D.h"
 #include "Vector3D.h"
@@ -23,13 +23,12 @@
 
 #include "Cloth.h"
 #include "Jelly.h"
-
-
-//#include "WorldObject.h"
 #include "Rope.h"
 
-Camera myCamera;
+//#include "WorldObject.h"
 
+
+Camera myCamera;
 
 // Objects in the world:
 Surface3D theFloor;
@@ -42,8 +41,14 @@ int moving, startx, starty;
 
 void init(void) {
 	glClearColor (0.1, 0.2, 0.7, 0.0);
+
+
+
 	glShadeModel (GL_SMOOTH);
 	glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_COLOR_MATERIAL);
 
 	// Set camera:
 	myCamera = Camera(0, 30, 60);
@@ -63,7 +68,7 @@ void init(void) {
 	GLfloat ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
 	GLfloat diffuseLight[] = { 0.8f, 0.8f, 0.8, 1.0f };
 	GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	GLfloat position[] = { -1.5f, 1.0f, -4.0f, 1.0f };
+	GLfloat position[] = { 1.5f, 1.0f, 4.0f, 1.0f };
 	// Assign to GL_LIGHT0
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
@@ -72,15 +77,7 @@ void init(void) {
 	// Switch on GL_LIGHT0 and GL_LIGHTING
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-
-	// Put some Fog
-	float black[] = {.1, .1, .3, 0.7};
-	glFogfv(GL_FOG_COLOR, black);
-	glFogf(GL_FOG_START, 3.5);
-	glFogf(GL_FOG_END, 5);
-	glFogi(GL_FOG_MODE, GL_EXP2);
-	//glEnable(GL_FOG);
-    
+   
 }
 
 /**** Methods for time measureing ****/
@@ -116,7 +113,7 @@ void time(void){
 	float dt = timedelta();
 	theTime += dt;
 
-	int SLOWDOWN = 20;
+	int SLOWDOWN = 10;
 
 	if( (int)theTime % SLOWDOWN == 0){
 		
@@ -161,7 +158,15 @@ void display(void){
 }
 
 void reshape(int width, int height){
-   	 glViewport(0, 0, width, height);
+	glViewport(0, 0, width, height);
+
+	// Put some Fog
+	float black[] = {1, 0, 0, 0};
+	glFogfv(GL_FOG_COLOR, black);
+	glFogf(GL_FOG_START, 3.5);
+	glFogf(GL_FOG_END, 5);
+	glFogi(GL_FOG_MODE, GL_LINEAR);
+	//glEnable(GL_FOG);
 }
 
 void visible(int vis) {
@@ -256,7 +261,6 @@ int openGLinit(int argc, char** argv){
 	glutCreateWindow (argv[0]);
 
 	init ();
-	//create();
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
@@ -274,28 +278,26 @@ int openGLinit(int argc, char** argv){
 
 int main(int argc, char** argv)
 {
-	
 	// Init & Create the 3D world:
 	openGLinit(argc, argv);
 	
+
+
 	// Add initial objects and forces to our world:
-	
 	Force gravity(0, -1, 0);
 
-	MassPoint3D* start = new MassPoint3D(0, 50, 0);
+	MassPoint3D* start = new MassPoint3D(0, 50, 10);
 	myRope = Rope(start);
 	myRope.applyGlobalForce(&gravity);
 
-
-
-	//Force smallgravity(0, -0.1, 0);
-
-	MassPoint3D* start2 = new MassPoint3D(10, 30, 10);
+	MassPoint3D* start2 = new MassPoint3D(10, 40, 10);
 	myCloth = Cloth(start2);
 	myCloth.applyGlobalForce(&gravity);
 
-    myJelly = Jelly();
-    myJelly.applyGlobalForce(&gravity);
+	myJelly = Jelly();
+	myJelly.applyGlobalForce(&gravity);
+
+	
 	// Start and show the 3D world:
 	openGLrun();
 	
