@@ -33,9 +33,10 @@ Camera myCamera;
 // Objects in the world:
 Surface3D theFloor;
 Rope myRope;
-Cloth myCloth;
+Cloth myCloth, myFlag;
 Jelly myJelly;
  
+Force* windCloth;
 
 int moving, startx, starty;
 
@@ -109,6 +110,22 @@ float timedelta(){
     return .6; // for now a good value
 }
 
+void windy(){
+	// change the wind dynamically
+	float pm = (float)rand()/(float)RAND_MAX;
+	float dr = (float)rand()/(float)RAND_MAX;
+	if (pm>0.5)
+		windCloth->x += dr/15;
+	else
+		windCloth->x -= dr/15;
+	pm = (float)rand()/(float)RAND_MAX;
+	dr = (float)rand()/(float)RAND_MAX;
+	if (pm>0.5)
+		windCloth->z += dr/15;
+	else
+		windCloth->z -= dr/15;
+}
+
 void time(void){
 	float dt = timedelta();
 	theTime += dt;
@@ -124,7 +141,13 @@ void time(void){
 		myCloth.timeStep(dt);
 		myJelly.timeStep(dt);
 
+		myFlag.timeStep(dt);
+	
+		windy();
+
 	}
+
+
 
 	glutPostRedisplay();
 
@@ -151,6 +174,7 @@ void display(void){
 	myRope.draw();
 	myJelly.draw();
 	myCloth.draw();
+	myFlag.draw();
 
 	// Don't forget to swap the buffers...
 	glDisable(GL_DEPTH_TEST);
@@ -228,15 +252,12 @@ void keyboardSpecial(int key, int x, int y) {
 		myCamera.move_up();
 	}
 }
-
+void createObjects();
 void keyboard(unsigned char key, int x, int y) {
 
-	/*if (key == 32){
-		Force gravity(0, -1, 0);
-		MassPoint3D* start = new MassPoint3D(0, 0, 0);
-		myRope = Rope(start);
-		myRope.applyGlobalForce(&gravity);
-	}*/
+	if (key == 32){
+		createObjects();
+	}
 
 	if (key == 27){
 		exit(0);
@@ -276,27 +297,38 @@ int openGLinit(int argc, char** argv){
 
 /**** Create Objects and run! ****/
 
+void createObjects(){
+	// Add initial objects and forces to our world:
+	Force* gravity = new Force(0, -1, 0);
+
+	MassPoint3D* start = new MassPoint3D(0, 50, 10);
+	myRope = Rope(start);
+	myRope.applyGlobalForce(gravity);
+
+
+	MassPoint3D* start2 = new MassPoint3D(10, 40, 10);
+	myCloth = Cloth(start2);
+	myCloth.applyGlobalForce(gravity);
+
+
+	windCloth = new Force(0, 0, -0.5);
+	MassPoint3D* start3 = new MassPoint3D(05, 40, -50);
+	myFlag = Cloth(start3);
+	myFlag.applyGlobalForce(gravity);
+	myFlag.applyGlobalForce(windCloth);
+
+	myJelly = Jelly();
+	myJelly.applyGlobalForce(gravity);
+
+
+}
+
 int main(int argc, char** argv)
 {
 	// Init & Create the 3D world:
 	openGLinit(argc, argv);
 	
-
-
-	// Add initial objects and forces to our world:
-	Force gravity(0, -1, 0);
-
-	MassPoint3D* start = new MassPoint3D(0, 50, 10);
-	myRope = Rope(start);
-	myRope.applyGlobalForce(&gravity);
-
-	MassPoint3D* start2 = new MassPoint3D(10, 40, 10);
-	myCloth = Cloth(start2);
-	myCloth.applyGlobalForce(&gravity);
-
-	myJelly = Jelly();
-	myJelly.applyGlobalForce(&gravity);
-
+	createObjects();
 	
 	// Start and show the 3D world:
 	openGLrun();
