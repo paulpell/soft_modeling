@@ -28,8 +28,8 @@ public:
 	// no default draw!!
 	virtual void draw() = 0;
 
-	// 
-	void timeStep(float time);
+	// let subclasses do what they want
+	virtual void timeStep(float time);
 
 	void pushSpring(MassPoint3D* start, MassPoint3D* end, float hardness);
     void pushObject(WorldObject*);
