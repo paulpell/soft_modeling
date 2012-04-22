@@ -6,7 +6,7 @@
 #include <list>
 
 #include "Vertex3D.h"
-#include "Vector3D.h"
+#include "Force.h"
 
 #include <iostream>
 
@@ -25,7 +25,6 @@ public:
 
 	void timeStep(float time);
 
-
 	float old_x, old_y, old_z;
 	bool isAnchor;
 
@@ -33,6 +32,7 @@ public:
 	Vector3D velocity;
 
 	std::list<Force*> forcelist;
+    Force totalForce;
 
 	void draw();
 	

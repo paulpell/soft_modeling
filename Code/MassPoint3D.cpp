@@ -5,14 +5,14 @@ static float dampening = .95;
 
 using namespace std;
 //
-MassPoint3D::MassPoint3D(){
+/*MassPoint3D::MassPoint3D(){
 	x = 0;
 	y = 0;
 	z = 0;
 	mass = 0.1;
 	//std::cout << "WARNING in Masspoint constructor :P" << std::endl;
 	//MassPoint3D(0, 0, 0);
-}
+}*/
 
 MassPoint3D::MassPoint3D(float x, float y, float z){
 
@@ -23,8 +23,8 @@ MassPoint3D::MassPoint3D(float x, float y, float z){
 	mass = 1;
 	isAnchor = false;
 
-	//forces = 1;
-	//forceList = new Force;
+
+    totalForce = Force(0,0,0);
 	velocity = Vector3D(0, 0, 0);
 }
 MassPoint3D::MassPoint3D(float x, float y, float z, float m){
@@ -36,8 +36,7 @@ MassPoint3D::MassPoint3D(float x, float y, float z, float m){
 	mass = m;
 	isAnchor = false;
 
-	//forces = 1;
-	//forceList = new Force;
+    totalForce = Force(0,0,0);
 	velocity = Vector3D(0, 0, 0);
 }
 
@@ -52,6 +51,8 @@ void MassPoint3D::addForce(Force *f){
 
 }
 
+    
+
 void MassPoint3D::setAnchor(bool b){
 	isAnchor = b;
 }
@@ -65,27 +66,27 @@ void MassPoint3D::timeStep(float time){
 	using namespace std;
 
 	//std::cout << "time in masspoint: " << time << std::endl;
-	if (isAnchor){
+	if (isAnchor) {
 		return;
 	}
 
 	// compute overall force
-	Force temp(0.0, 0.0, 0.0);
+    totalForce.reset(); // sets to 0
 	list<Force*>::iterator it, listend = forcelist.end();
 	for (it = forcelist.begin(); it != listend; it++) {
 		//cout << "  adding x=" << (*it)->x << ",y="<<(*it)->y << ",z="<<(*it)->z <<endl;
-		temp.x += (*it)->x;
-		temp.y += (*it)->y;
-		temp.z += (*it)->z;
+		totalForce.x += (*it)->x;
+		totalForce.y += (*it)->y;
+		totalForce.z += (*it)->z;
 	}
 
-	//std::cout << "Force (from " << forcelist.size() << "): " << temp.x << "," << temp.y << "," << temp.z << std::endl;
+	//std::cout << "Force (from " << forcelist.size() << "): " << totalForce.x << "," << totalForce.y << "," << totalForce.z << std::endl;
 
 	// update velocity
     	//cout << "velocity before:" << velocity.x << "," << velocity.y<<"," << velocity.z << " time=" << time << endl;
-	velocity.x += time * (temp.x / mass);
-	velocity.y += time * (temp.y / mass);
-	velocity.z += time * (temp.z / mass);
+	velocity.x += time * (totalForce.x / mass);
+	velocity.y += time * (totalForce.y / mass);
+	velocity.z += time * (totalForce.z / mass);
     	//cout << "velocity after:" << velocity.x << "," << velocity.y<<"," << velocity.z << " time=" << time << endl;
 
 
