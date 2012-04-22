@@ -1,26 +1,37 @@
 
-#include "Jelly.h"
+#include "Cube.h"
 
 
-Jelly::Jelly() {
+Cube::Cube() {
+    basex = basey = basez = 0;
+    size = 5;
     init();
 }
 
-Jelly::Jelly(float x, float y, float z) {
+Cube::Cube(float x, float y, float z) {
     basex = x;
     basey = y;
     basez = z;
+    size = 5;
     init();
 }
 
-void Jelly::init() {
+Cube::Cube(float x, float y, float z, float size) {
+    basex = x;
+    basey = y;
+    basez = z;
+    this->size = size;
+    init();
+}
+
+
+void Cube::init() {
     size = 5;
     segments = 1;
     hardness = 1;
     melting = false;
 
     //basex = -20, basey = 20, basez = 0;
-
     mesh = new MassPoint3D***[segments+1];
     faces = new MassPoint3D**[6];
     for (int i=0; i<segments+1; i++) {
@@ -111,16 +122,87 @@ void Jelly::init() {
 
 }
 
-Texture Jelly::texture = Texture("jelly.512x512.bmp", 512, 512);
-GLuint Jelly::textureName = 0;
+Texture Cube::texture = Texture("jelly.512x512.bmp", 512, 512);
+GLuint Cube::textureName = 0;
 
-Jelly::~Jelly(){}
+Cube::~Cube(){}
 
-inline float Jelly::normx(float f) { return (f - basex) / size;}
-inline float Jelly::normy(float f) { return (f - basey) / size;}
-inline float Jelly::normz(float f) { return (f - basez) / size;}
+// *** Some collision detection helpers
+// Assume position aligned with the axes =)
+bool Cube::isPointInBaseSquare(MassPoint3D *p) {
+    MassPoint3D *m = mesh[0][0][0], *m2 = mesh[segments][segments][segments];
+    return (p->x >= m->x) && (p->x <= m2->x) && (p->z >= m->z) && (p->z <= m2->z);
+}
+bool Cube::isPointInside(MassPoint3D *p) {
+    float x = p->x, y = p->y, z = p->z;
+	MassPoint3D *m1 = mesh[0][0][0], *m2 = mesh[segments][segments][segments];
+	return x >m1->x && x < m2->x 
+        && y > m1->y && y < m2->y
+        && z > m1->z && z < m2->z;
 
-void Jelly::timeStep(float dt) {
+}
+// The given point will be set at the border, and its velocity inverted
+// the argument f is to always use the same Force to repulse a masspoint
+void Cube::collide(MassPoint3D *p, Force *f,float dt) {
+    int s = segments;
+    float xMean = (mesh[s][0][0]->x - mesh[0][0][0]->x) / 2.;
+    float yMean = (mesh[0][s][0]->y - mesh[0][0][0]->y) / 2.;
+    float zMean = (mesh[0][0][s]->z - mesh[0][0][0]->z) / 2.;
+    int xLow = (p->x <= xMean) ? 1 : 0;
+    int yLow = (p->y <= yMean) ? 1 : 0;
+    int zLow = (p->z <= zMean) ? 1 : 0;
+    // for each axis, nearer of which plane?
+    float xDist = xLow ? p->x - mesh[0][0][0]->x : mesh[s][0][0]->x - p->x;
+    float yDist = yLow ? p->y - mesh[0][0][0]->y : mesh[s][0][0]->y - p->y;
+    float zDist = zLow ? p->z - mesh[0][0][0]->z : mesh[s][0][0]->z - p->z;
+    
+    // find to which side the point p is the nearest, and update p wrt that side
+    int minAxis = 0; // by default, p is nearest of an x aligned side
+    float delta = 0.5;
+    if (yDist < xDist) minAxis = 1;
+    if (zDist < xDist && zDist < yDist) minAxis = 2;
+    if (minAxis == 0) {
+        p->velocity.x *= -.5;
+        f->x -= p->totalForce.x;
+
+        if (xLow) {
+            p->x = mesh[0][0][0]->x - delta;
+        }
+        else {
+            p->x = mesh[s][0][0]->x + delta;
+        }
+    }
+    if (minAxis == 1) {
+        p->velocity.y *= -.5;
+        f->y -= p->totalForce.y;
+        if (yLow) {
+            p->y = mesh[0][0][0]->y - delta;
+        }
+        else {
+            p->y = mesh[0][s][0]->y + delta;
+        }
+    }
+    if (minAxis == 2) {
+        p->velocity.z *= -.5;
+        f->z -= p->totalForce.z;
+        if (zLow) {
+            p->z = mesh[0][0][0]->z - delta;
+        }
+        else {
+            p->z = mesh[0][0][s]->z + delta;
+        }
+    }
+}
+
+inline float Cube::normx(float f) { return (f - basex) / size;}
+inline float Cube::normy(float f) { return (f - basey) / size;}
+inline float Cube::normz(float f) { return (f - basez) / size;}
+
+float Cube::maxY() {
+    return size + basey;
+}
+
+void Cube::timeStep(float dt) {
     WorldObject::timeStep(dt);
     if (melting) {
 	    list<Spring*>::iterator it, end = springList.end();
@@ -131,11 +213,11 @@ void Jelly::timeStep(float dt) {
     }
 }
 
-void Jelly::setMelting() {
+void Cube::setMelting() {
     melting = true;
 }
 
-void Jelly::draw(){
+void Cube::draw(){
 
 	#define SPRING_FRAME 0
 
