@@ -31,10 +31,10 @@ using namespace std;
 		xData[y][x][0] =  *temp;
 
 		fileBMP.read(temp , sizeof(char));
-		xData[y][x][2] =  *temp;
+		xData[y][x][1] =  *temp;
 
 		fileBMP.read(temp , sizeof(char));
-		xData[y][x][1] =  *temp;
+		xData[y][x][2] =  *temp;
 
 		xData[x][y][3] =  255;
 
