@@ -15,6 +15,7 @@
 #include "Camera.h"
 #include "Vertex3D.h"
 #include "Vector3D.h"
+#include "Force.h"
 #include "Surface3D.h"
 #include "Texture.h"
 #include "Keyboard.h"
@@ -23,8 +24,9 @@
 #include "Spring.h"
 
 #include "Cloth.h"
-#include "Jelly.h"
+#include "Cube.h"
 #include "Rope.h"
+#include "ClothOnBox.h"
 
 //#include "WorldObject.h"
 
@@ -34,16 +36,23 @@
 Camera myCamera;
 
 // Objects in the world:
+list<WorldObject*> worldObjects;
+
 Surface3D theFloor;
 Rope myRope;
 Cloth myCloth, myFlag;
-Jelly myJelly;
-Jelly myJelly2;
+Cube myJelly;
+Cube myCube2;
+Cube j;
+ClothOnBox clothOnBox;
  
 Force* jellyAnimeForce;
 Force* windCloth;
 
 int moving, startx, starty;
+int SLOWDOWN = 30;
+bool pauseMode = false;
+
 
 void init(void) {
 	glClearColor (0.1, 0.2, 0.7, 0.0);
@@ -151,26 +160,21 @@ void time(void){
 	float dt = timedelta();
 	theTime += dt;
 
-	int SLOWDOWN = 10;
 
 	if( (int)theTime % SLOWDOWN == 0){
 		
 		// TODO perform calculations on all WorldObjects
 			
 
-        	myRope.timeStep(dt);
-		myCloth.timeStep(dt);
-		myJelly.timeStep(dt);
-		myJelly2.timeStep(dt);
-        jellyForce();
+		list<WorldObject*>::iterator it, end = worldObjects.end();
+		for (it = worldObjects.begin(); it != end; it++) {
+			(*it)->timeStep(dt);
+		}
 
-		myFlag.timeStep(dt);
-	
+        // SPECIAL FORCES come here
+		jellyForce();
 		windy();
-
 	}
-
-
 
 	glutPostRedisplay();
 
@@ -181,7 +185,7 @@ void time(void){
 void display(void){
 	// Init frame:
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 
 	// Update camera:
 	glMatrixMode(GL_PROJECTION);
@@ -194,15 +198,14 @@ void display(void){
 	// iterate over all "objects" and paint them (TODO list of worldobjects)
 
 	theFloor.draw();
-	myRope.draw();
-	myJelly.draw();
-	myJelly2.draw();
-	myCloth.draw();
-	myFlag.draw();
 
+	list<WorldObject*>::iterator it, end = worldObjects.end();
+	for (it = worldObjects.begin(); it != end; it++) {
+		(*it)->draw();
+	}
 
 	// Don't forget to swap the buffers...
-	//glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	glutSwapBuffers();
 }
 
@@ -219,15 +222,15 @@ void reshape(int width, int height){
     //glEnable(GL_FOG);
 	glFogfv(GL_FOG_COLOR, black);
     glFogf(GL_FOG_DENSITY, .3);
-    //glHint (GL_FOG_HINT, GL_NICEST);
-	//glFogf(GL_FOG_START, -50);
-	//glFogf(GL_FOG_END, -100);
+    glHint (GL_FOG_HINT, GL_NICEST);
+	//glFogf(GL_FOG_START, 50);
+	//glFogf(GL_FOG_END, 100);
 	//glFogi(GL_FOG_MODE, GL_LINEAR);
 	//glFogi(GL_FOG_MODE, GL_EXP2);
 }
 
 void visible(int vis) {
-	if (vis == GLUT_VISIBLE){
+	if (vis == GLUT_VISIBLE || pauseMode){
 		glutIdleFunc(time);
 	} else {
 		glutIdleFunc(NULL);
@@ -296,6 +299,20 @@ void keyboard(unsigned char key, int x, int y) {
 		exit(0);
 	}
 
+    if (key == 'p') {
+        pauseMode = !pauseMode;
+    }
+
+    if (key == '+') {
+        SLOWDOWN *= 1.6;
+        cout << "SLOW: " << SLOWDOWN << endl;
+    }
+    if (key == '-') {
+        SLOWDOWN /= 1.6;
+        if (SLOWDOWN < 7) SLOWDOWN = 7;
+        cout << "SLOW: " << SLOWDOWN << endl;
+    }
+
 	glutPostRedisplay();
 }
 
@@ -337,30 +354,41 @@ void createObjects(){
 	MassPoint3D* start = new MassPoint3D(0, 50, 0);
 	myRope = Rope(start);
 	myRope.applyGlobalForce(gravity);
+	worldObjects.push_front(&myRope);
 
 
 	MassPoint3D* start2 = new MassPoint3D(10, 40, 10);
-	myCloth = Cloth(start2);
+	myCloth = Cloth(start2, 8, 16);
+    myCloth.anchor3();
 	myCloth.applyGlobalForce(gravity);
+	worldObjects.push_front(&myCloth);
 
 
 	windCloth = new Force(0, 0, -0.5);
 	MassPoint3D* start3 = new MassPoint3D(05, 40, -50);
-	myFlag = Cloth(start3);
-    //myFlag.setFlag();
+	myFlag = Cloth(start3, 10, 20);
+    myFlag.anchor3();
+	worldObjects.push_front(&myFlag);
+    //myFlag.anchorSide(); // flag is fixed at an edge
 	myFlag.applyGlobalForce(gravity);
 	myFlag.applyGlobalForce(windCloth);
 
 
     jellyAnimeForce = new Force(0,0,0);
-	myJelly = Jelly(-20, 20, 0);
+	myJelly = Cube(-20, 20, 0);
+	worldObjects.push_front(&myJelly);
 	//myJelly.applyGlobalForce(gravity);
     myJelly.applyGlobalForce(jellyAnimeForce);
 
+
+	clothOnBox = ClothOnBox(-20, 50, 0);
+	worldObjects.push_front(&clothOnBox);
+
     /*
-	myJelly2 = Jelly(-20, 20, 30);
-    myJelly2.applyGlobalForce(jellyAnimeForce);
-    myJelly2.setMelting();
+	myCube2 = Cube(-20, 20, 30);
+	worldObjects.push_front(*myCube2);
+    myCube2.applyGlobalForce(jellyAnimeForce);
+    myCube2.setMelting();
 */
 
 }
