@@ -18,12 +18,15 @@ class Cloth : public WorldObject {
 public:
 	// Con- and Destructor:
 	Cloth();
-	Cloth(MassPoint3D* start);
+	Cloth(MassPoint3D* start, int segments, float size);
 
 	void reset();
     void anchor3();
     void anchorSide();
 	void draw();
+
+    int getSegments() { return segments; }
+    MassPoint3D* mesh(int i, int j);
 
 	// sry nicht nice
 	float veclength(float x1, float y1, float z1);
@@ -38,7 +41,7 @@ private:
 
 	// 
 	int segments;
-	float radius, hardness, segsize;
+	float hardness, segsize;
 
 	GLuint textureName;
 	//Texture ropetexture;

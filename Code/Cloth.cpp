@@ -14,7 +14,7 @@ Cloth::Cloth(){
 	It is not a very dynamic editable Cloth,
 	but for now we need only a proof of concept!
 */
-Cloth::Cloth(MassPoint3D* start){
+Cloth::Cloth(MassPoint3D* start, int segments, float size){
 
 	// our Cloth has a fixed number of mesh size and mesh amount
 
@@ -24,8 +24,9 @@ Cloth::Cloth(MassPoint3D* start){
 	// anchor is picked manually
 
 	// properties of rope:
-	segments = 8; // must be at least 1 !!
-	segsize = 2; // seglength without stress
+	//segments = 8; // must be at least 1 !!
+    this->segments = segments;
+	segsize = size / segments; // seglength without stress
 	hardness = 4; // je dicker das seil desto fester :D
 
 	// adding points to cloth mesh
@@ -66,13 +67,19 @@ Cloth::Cloth(MassPoint3D* start){
 
 }
 
+MassPoint3D* Cloth::mesh(int i,int j) {
+    if (i > segments || j > segments) return NULL;
+    return meshNet[i][j];
+}
+
 void Cloth::anchor3() {
 	// some hardcoded anchors
     meshNet[0][0]->setAnchor(true);
     meshNet[0][segments-1]->setAnchor(true);
-    meshNet[segments-1][segments-1];
+    meshNet[segments-1][segments-1]->setAnchor(true);
 }
 
+// one row of anchors
 void Cloth::anchorSide() {
     for (int i=0; i<segments+1; i++) {
         for (int j=0; j<segments+1; j++) {
