@@ -1,21 +1,12 @@
 #include "Force.h"
 
-Force::Force(float x, float y, float z, float f) {
-	this->x = x;
-	this->y = y;
-	this->z = z;
-	this->force = f;
+Force::Force() {
 }
 
-Force::Force(float x, float y, float z) {
-	this->x = x;
-	this->y = y;
-	this->z = z;
-	//this->force = f;
+Force::Force(float x, float y, float z) : Vector3D(x,y,z) {
 }
 
 Force::~Force() {
-	// TODO
 }
 
 // Inverse direction of Force
@@ -24,6 +15,10 @@ void Force::neg()
 	x = -x;
 	y = -y;
 	z = -z;
+}
+
+void Force::reset() {
+    x = y = z = 0;
 }
 
 void Force::scale(float s)
