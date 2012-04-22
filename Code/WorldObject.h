@@ -25,21 +25,24 @@ public:
 	// 
 	void applyGlobalForce(Force *force);
 
-	// 
-	void draw();
+	// no default draw!!
+	virtual void draw() = 0;
 
 	// 
 	void timeStep(float time);
 
 	void pushSpring(MassPoint3D* start, MassPoint3D* end, float hardness);
+    void pushObject(WorldObject*);
 
 	// for Collision detection - returns a set of MP at z=0
 	//MassPoint3D* getImpactSet();
 
-// private:
 	// Properties:
 	list<Spring*> springList;
 	list<MassPoint3D*> pointList;
+private:
+    bool containsObject;
+    list<WorldObject*> objects; // an object can contain objects itself
 
 };
 

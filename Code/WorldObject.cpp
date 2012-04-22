@@ -1,6 +1,7 @@
 #include "WorldObject.h"
 
 WorldObject::WorldObject(){
+    containsObject = false;
 }
 
 WorldObject::~WorldObject() {
@@ -11,6 +12,14 @@ void WorldObject::timeStep(float time){
 
 	// slows down [not by reducing time, BUT reducing forces!]
 	time = time / .7;
+
+    // update the sub-objects
+    if (containsObject) {
+        list<WorldObject*>::iterator itO, endO = objects.end();
+        for (itO = objects.begin(); itO != endO; itO++) {
+            (*itO)->timeStep(time);
+        }
+    }
 
 	// update all the internal spring forces
 	list<Spring*>::iterator it, end = springList.end();
@@ -26,27 +35,22 @@ void WorldObject::timeStep(float time){
 
 }
 
-void WorldObject::draw(){
-	list<Spring*>::iterator it, listend = springList.end();
-	for (it = springList.begin(); it != listend; it++) {
-	        (*it)->draw();
+void WorldObject::applyGlobalForce( Force *f) {
+
+	list<MassPoint3D*>::iterator it, end = pointList.end();
+	for (it = pointList.begin(); it != end; it++) {
+	    (*it)->addForce(f);
 	}
 }
 
-void WorldObject::applyGlobalForce( Force *f) {
-
-	//list<MassPoint3D>::iterator it, end = pointList.end();
-	list<MassPoint3D*>::iterator it, end = pointList.end();
-	for (it = pointList.begin(); it != end; it++) {
-	//(*it).addForce(f);
-	(*it)->addForce(f);
-	}
+void WorldObject::pushObject (WorldObject *obj) {
+    containsObject = true;
+    objects.push_front(obj);
 }
 
 void WorldObject::pushSpring(MassPoint3D* start, MassPoint3D* end, float hardness){
 	// Create the connection Springs:
 	Spring* spring1 = new Spring(start, end, hardness);
-	//spring1->setSize(1); // remove later
 
 	// Add Springs to the springList
 	springList.push_front(spring1);
