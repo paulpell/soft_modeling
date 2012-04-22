@@ -14,6 +14,3 @@ Vector3D::Vector3D(float x, float y, float z){
 
 Vector3D::~Vector3D() {
 }
-
-Force::Force(float x, float y, float z) : Vector3D(x, y, z){
-}

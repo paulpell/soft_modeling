@@ -14,10 +14,4 @@ public:
 	float x, y, z;
 };
 
-class Force : public Vector3D {
-public:
-	Force(float x, float y, float z);
-};
-
-
 #endif /* VECTOR3D_H_ */
