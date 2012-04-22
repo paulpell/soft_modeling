@@ -21,7 +21,8 @@ public:
 	Cloth(MassPoint3D* start);
 
 	void reset();
-    void setFlag();
+    void anchor3();
+    void anchorSide();
 	void draw();
 
 	// sry nicht nice

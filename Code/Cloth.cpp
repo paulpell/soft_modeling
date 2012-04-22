@@ -41,16 +41,6 @@ Cloth::Cloth(MassPoint3D* start){
 			// create a new MassPoint for this object:
 			MassPoint3D* spline = new MassPoint3D(x+i*segsize, y, z+j*segsize, 4);
 
-			// some hardcoded anchors
-			if(i==0 && j==0){
-				spline->setAnchor(true);
-			}
-			if(j==0  && i==segments-1) {
-				spline->setAnchor(true);
-			}
-			if(i==segments - 1  && j==segments - 1) {
-				spline->setAnchor(true);
-			}
 			
 			// put them in pointList for physics effects (superclass compatibility!)
 			pointList.push_front(spline); 
@@ -61,7 +51,6 @@ Cloth::Cloth(MassPoint3D* start){
 		}
 	}
 
-	//cout << "coth with points: " << pointList.size() << endl;
 
 	// compute internal Springs:
 	addSprings();
@@ -77,8 +66,14 @@ Cloth::Cloth(MassPoint3D* start){
 
 }
 
+void Cloth::anchor3() {
+	// some hardcoded anchors
+    meshNet[0][0]->setAnchor(true);
+    meshNet[0][segments-1]->setAnchor(true);
+    meshNet[segments-1][segments-1];
+}
 
-void Cloth::setFlag() {
+void Cloth::anchorSide() {
     for (int i=0; i<segments+1; i++) {
         for (int j=0; j<segments+1; j++) {
             if (i == 0) meshNet[i][j]->setAnchor(true);
