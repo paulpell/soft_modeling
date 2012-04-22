@@ -11,7 +11,7 @@
 
 #include "Vector3D.h"
 
-class Vertex3D : public Vector3D {
+class Vertex3D {//: public Vector3D {
 public:
 	// Con- und Destructor:
 	Vertex3D();
