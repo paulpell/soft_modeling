@@ -13,21 +13,26 @@ Cloth::Cloth(){
 	This constructor creates a Cloth.
 	It is not a very dynamic editable Cloth,
 	but for now we need only a proof of concept!
-*/
-Cloth::Cloth(MassPoint3D* start, int segments, float size){
 
 	// our Cloth has a fixed number of mesh size and mesh amount
 
 	// also our Cloth initially will always hang horizontally into x+ z- direction
-	// only the startpoint is given as parameter (for now)
 
 	// anchor is picked manually
+*/
+Cloth::Cloth(MassPoint3D* start, int segments, float size) {
+    init(start, segments, size, 4);
+}
+Cloth::Cloth(MassPoint3D* start, int segments, float size, float singleMass){
+    init(start, segments, size, singleMass);
+}
 
-	// properties of rope:
-	//segments = 8; // must be at least 1 !!
+void Cloth::init(MassPoint3D *start, int segments, float size, float singleMass) {
+    // properties of rope:
     this->segments = segments;
 	segsize = size / segments; // seglength without stress
 	hardness = 4; // je dicker das seil desto fester :D
+    this->totalMass = singleMass * (segments + 1) * (segments + 1);
 
 	// adding points to cloth mesh
 	int x = start->x;
@@ -40,7 +45,8 @@ Cloth::Cloth(MassPoint3D* start, int segments, float size){
 		for(int j=0; j<=segments; j++){
 
 			// create a new MassPoint for this object:
-			MassPoint3D* spline = new MassPoint3D(x+i*segsize, y, z+j*segsize, 4);
+			//MassPoint3D* spline = new MassPoint3D(x+i*segsize, y, z+j*segsize, singleMass);
+			MassPoint3D* spline = new MassPoint3D(x+i*segsize, y, z+j*segsize, 8);
 
 			
 			// put them in pointList for physics effects (superclass compatibility!)

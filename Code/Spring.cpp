@@ -40,6 +40,8 @@ void Spring::timeStep(float time){
 	float dz = (start->z - end->z) / l;
 	float forceIntensity = - hardness * (l - org_length);
 
+    
+
 	// if both are not anchors, divide the force by 2
 	if (!(start->isAnchor || end->isAnchor)){
 		forceIntensity /= 2.0f;

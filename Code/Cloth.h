@@ -19,6 +19,7 @@ public:
 	// Con- and Destructor:
 	Cloth();
 	Cloth(MassPoint3D* start, int segments, float size);
+	Cloth(MassPoint3D* start, int segments, float size, float totalMass);
 
 	void reset();
     void anchor3();
@@ -34,6 +35,8 @@ public:
 	float vecangle(float x1, float y1, float z1, float x2, float y2, float z2);
 
 private:
+    // for multiple constructors
+    void init(MassPoint3D* start, int segments, float size, float singleMass);
 
 	void addSprings();
 
@@ -42,6 +45,7 @@ private:
 	// 
 	int segments;
 	float hardness, segsize;
+    float totalMass;
 
 	GLuint textureName;
 	//Texture ropetexture;
