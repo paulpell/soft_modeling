@@ -9,7 +9,7 @@ ClothOnBox::ClothOnBox (float x, float y, float z) {
         float size = 5;
 		//box = new Cube(x,y,z,size);
         box = NULL;
-        nail = new MassPoint3D(x + size/2, y + size, z+ size/2);
+        nail = new Vertex3D(x + size/2, y + size, z+ size/2);
 		cloth = new Cloth(new MassPoint3D(x - size/2, y + size + 1, z-size/2), segments, 2*size);
 		cloth->applyGlobalForce(new Force(0,-.5,0)); // gravity shall be
         /*
@@ -95,11 +95,14 @@ void ClothOnBox::draw() {
 	if (box)
         box->draw();
     else {
-//        glBegin(GL_POINTS);
+        nail->draw();
+/*      
+        glBegin(GL_POINTS);
         glPointSize(50);
         glColor3f(.9, .1, .2);
         glVertex3f(nail->x, nail->y, nail->z);
- //       glEnd();
+        glEnd();
+*/
     }
     cloth->draw();
 }
