@@ -10,6 +10,8 @@ class Cube : public WorldObject {
     static Texture texture;
     static GLuint textureName;
 
+    const static float delta = 2;
+
     int segments;
     float hardness;
     float basex, basey, basez; // position of one corner
@@ -41,5 +43,6 @@ public:
     void collide(MassPoint3D*, Force*, float dt);
     bool isPointInBaseSquare (MassPoint3D*);
 	bool isPointInside(MassPoint3D*);
+    bool isPointInActiveArea(MassPoint3D*);
 
 };

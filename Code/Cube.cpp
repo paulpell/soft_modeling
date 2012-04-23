@@ -141,6 +141,14 @@ bool Cube::isPointInside(MassPoint3D *p) {
         && z > m1->z && z < m2->z;
 
 }
+bool Cube::isPointInActiveArea(MassPoint3D *p) {
+    float x = p->x, y = p->y, z = p->z;
+	MassPoint3D *m1 = mesh[0][0][0], *m2 = mesh[segments][segments][segments];
+	return x >m1->x - delta && x < m2->x + delta
+        && y > m1->y -delta && y < m2->y + delta
+        && z > m1->z -delta && z < m2->z + delta;
+
+}
 // The given point will be set at the border, and its velocity inverted
 // the argument f is to always use the same Force to repulse a masspoint
 void Cube::collide(MassPoint3D *p, Force *f,float dt) {
@@ -161,6 +169,8 @@ void Cube::collide(MassPoint3D *p, Force *f,float dt) {
     float delta = 0.5;
     if (yDist < xDist) minAxis = 1;
     if (zDist < xDist && zDist < yDist) minAxis = 2;
+
+    // invert the velocity and cancel the forces wrt to the minAxis
     if (minAxis == 0) {
         p->velocity.x *= -.5;
         f->x -= p->totalForce.x;
