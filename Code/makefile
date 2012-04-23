@@ -18,17 +18,16 @@ SRC = World3D.cpp Vertex3D.cpp Surface3D.cpp Keyboard.cpp Texture.cpp Camera.cpp
 LIBS = -lGL -lGLU -lglut -lrt
 EXEC = Space
 # automatic in $(CC)?
-CFLAGS = $(LIBS)
+CFLAGS = $(LIBS) -g -Wall
 
 all: compile run	
 
 compile : objects main
 
 main: objects
-	$(CC) $(OBJECTS) $(MAIN) $(LIBS) -o $(EXEC)
+	$(CC) $(CFLAGS) $(OBJECTS) $(MAIN)  -o $(EXEC)
 
 objects: $(OBJECTS)
-	#$(CC) $(SRC) -o $(EXEC) $(LIBS)  -g
 
 run:
 	./$(EXEC)
