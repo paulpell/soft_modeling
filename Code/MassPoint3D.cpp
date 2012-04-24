@@ -80,6 +80,10 @@ void MassPoint3D::timeStep(float time){
 		totalForce.z += (*it)->z;
 	}
 
+    float tot = totalForce.getForce();
+    float max = 30;
+    if (tot > max) totalForce.scale(max / tot);
+
 	//std::cout << "Force (from " << forcelist.size() << "): " << totalForce.x << "," << totalForce.y << "," << totalForce.z << std::endl;
 
 	// update velocity
