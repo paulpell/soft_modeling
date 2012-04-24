@@ -44,5 +44,6 @@ public:
     bool isPointInBaseSquare (MassPoint3D*);
 	bool isPointInside(MassPoint3D*);
     bool isPointInActiveArea(MassPoint3D*);
+    int relpos(MassPoint3D*);
 
 };

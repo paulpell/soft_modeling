@@ -149,8 +149,25 @@ bool Cube::isPointInActiveArea(MassPoint3D *p) {
         && z > m1->z -delta && z < m2->z + delta;
 
 }
+int Cube::relpos(MassPoint3D* m) {
+    // bit  position
+    // 0    < x
+    // 1    > x + size
+    // 2    < y
+    // 3    > y + size
+    // 4    < z
+    // 5    > z + size
+    int i = 0;
+    if (m->x <= basex) i += 1;
+    if (m->x >= basex+size) i += 2;
+    if (m->y <= basey) i += 4;
+    if (m->y >= basey+size) i += 8;
+    if (m->z <= basez) i+= 16;
+    if (m->z >= basez+size) i += 32;
+    return i;
+}
 // The given point will be set at the border, and its velocity inverted
-// the argument f is to always use the same Force to repulse a masspoint
+// The argument f is the force exerted by the box on p; it can be NULL
 void Cube::collide(MassPoint3D *p, Force *f,float dt) {
     int s = segments;
     float xMean = (mesh[s][0][0]->x - mesh[0][0][0]->x) / 2.;
@@ -170,35 +187,42 @@ void Cube::collide(MassPoint3D *p, Force *f,float dt) {
     if (yDist < xDist) minAxis = 1;
     if (zDist < xDist && zDist < yDist) minAxis = 2;
 
-    // invert the velocity and cancel the forces wrt to the minAxis
-    if (minAxis == 0) {
-        p->velocity.x *= -.5;
-        f->x -= p->totalForce.x;
+    // replace the velocity by a constant and cancel the forces wrt to the minAxis
+    float bounce_velocity = .1;
+    // the formula below is used to adjust the force by the box
+#define forceTrans(c) if (f) f->c -= .8 * p->totalForce.c
 
+    // check all three axis to see whether it's happening in that direction
+    if (minAxis == 0) {
+        forceTrans(x);
         if (xLow) {
+            p->velocity.x = -bounce_velocity;
             p->x = mesh[0][0][0]->x - delta;
         }
         else {
+            p->velocity.x = bounce_velocity;
             p->x = mesh[s][0][0]->x + delta;
         }
     }
     if (minAxis == 1) {
-        p->velocity.y *= -.5;
-        f->y -= p->totalForce.y;
+        forceTrans(y);
         if (yLow) {
+            p->velocity.y = -bounce_velocity;
             p->y = mesh[0][0][0]->y - delta;
         }
         else {
+            p->velocity.y = bounce_velocity;
             p->y = mesh[0][s][0]->y + delta;
         }
     }
     if (minAxis == 2) {
-        p->velocity.z *= -.5;
-        f->z -= p->totalForce.z;
+        forceTrans(z);
         if (zLow) {
+            p->velocity.z = -bounce_velocity;
             p->z = mesh[0][0][0]->z - delta;
         }
         else {
+            p->velocity.z = bounce_velocity;
             p->z = mesh[0][0][s]->z + delta;
         }
     }
