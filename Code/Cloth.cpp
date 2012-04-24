@@ -5,10 +5,6 @@ using namespace std;
 
 Cloth::Cloth(){
 }
-
-
-
-
 /*
 	This constructor creates a Cloth.
 	It is not a very dynamic editable Cloth,
@@ -26,6 +22,11 @@ Cloth::Cloth(MassPoint3D* start, int segments, float size) {
 Cloth::Cloth(MassPoint3D* start, int segments, float size, float singleMass){
     init(start, segments, size, singleMass);
 }
+
+// initialize static data
+GLuint Cloth::textureName = 0;
+Texture Cloth::texture(NULL, 0, 0);
+
 
 void Cloth::init(MassPoint3D *start, int segments, float size, float singleMass) {
     // properties of rope:
@@ -62,21 +63,38 @@ void Cloth::init(MassPoint3D *start, int segments, float size, float singleMass)
 	// compute internal Springs:
 	addSprings();
 
-	// prePare texture:
-	Texture texture = Texture("cloth2.bmp", 512, 512);
+	// prepare texture:
+    if (textureName ==  0) {
+    	texture = Texture("cloth2.bmp", 512, 512);
+    
+    	glGenTextures(1, &textureName);
+    	glBindTexture(GL_TEXTURE_2D, textureName);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.imagewidth, texture.imageheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.xData );
+    }
 
-	glGenTextures(1, &textureName);
-	glBindTexture(GL_TEXTURE_2D, textureName);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.imagewidth, texture.imageheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.xData );
 
+#if CLOTH_BENDING == 1
+    bendingPoints = new MassPoint3D***[segments];
+    bendingPointsCoding = new int*[segments];
+    for (int i=0; i<segments; i++) {
+        bendingPoints[i] = new MassPoint3D**[segments];
+        bendingPointsCoding[i] = new int[segments];
+        for (int j=0; j<segments; j++) {
+            bendingPoints[i][j] = NULL;
+            bendingPointsCoding[i][j] = 0;
+        }
+    }
+#endif 
 }
 
 MassPoint3D* Cloth::mesh(int i,int j) {
     if (i > segments || j > segments) return NULL;
     return meshNet[i][j];
 }
+
+/** Anchoring function ***********************/
 
 void Cloth::anchor3() {
 	// some hardcoded anchors
@@ -129,10 +147,12 @@ void Cloth::addSprings(){
 		}
 	}
 
-	//cout << "coth with springs: " << springList.size() << endl;	
+	//cout << "Cloth with springs: " << springList.size() << endl;	
 }
 
 
+
+/* Arithmetic details *********/
 
 float Cloth::veclength(float x1, float y1, float z1){
 	return sqrt(x1*x1 + y1*y1 + z1*z1);
@@ -149,6 +169,119 @@ float Cloth::vecangle(float x1, float y1, float z1, float x2, float y2, float z2
 	return acos(val) * 180.0 / 3.14159265;
 }
 
+
+
+
+/** Bending of the cloth ************/
+#if CLOTH_BENDING == 1
+void Cloth::bendCorner(int i, int j, MassPoint3D* m) {
+    bendingPoints[i][j] = new MassPoint3D*[1];
+    bendingPoints[i][j][0] = m;
+    bendingPointsCoding[i][j] = 1;
+}
+
+void Cloth::bendEdge(int bi, int bj, MassPoint3D* m1, MassPoint3D* m2) {
+    cout << " === Starting bendEdge\n";
+    // encoding at (i,j) is to be:
+    // (0 i1 i2 i3 i4) in binary  where:
+    // i1 is 1 if a point is on the edge (i,j) - (i,j+1)
+    // i2 is 1 if a point is on the edge (i,j+1) - (i+1,j+1)
+    // i3 is 1 if a point is on the edge (i+1,j+1) - (i+1,j)
+    // i4 is 1 if a point is on the edge (i+1,j) - (i,j)
+    MassPoint3D *ps[4] = { meshNet[bi][bj],
+                           meshNet[bi][bj+1],
+                           meshNet[bi+1][bj],
+                           meshNet[bi+1][bj+1]};
+    cout << "points (4 ps, 2 ms):\n";
+    for (int i=0; i<4; i++) {
+        cout << "      " << ps[i]->x << "," << ps[i]->y << "," <<ps[i]->z << endl;
+    }
+    MassPoint3D* ms[2] = {m1, m2};
+    for (int i=0; i<2; i++) 
+        cout<< "      " << ms[i]->x << "," << ms[i]->y << "," << ms[i]->z<<endl;
+    int edge[2] = {0,0};
+    int nearest[2] = {0,0}; // sec is to hold the second nearest pts
+    float dist;
+    float min, min2 = distance(ms[0], ms[1]);
+    // for both masspoints, find on which edge they lie
+
+    // find the 2 nearest points for both points
+    // following macro is not exact, but it works to find the min (monotone fn)
+#define mydist(a,b) (((a)->x-(b)->x) * ((a)->x - (b)->x) \
+                        + ((a)->y - (b)->y) * ((a)->y - (b)->y) \
+                        + ((a)->z - (b)->z) * ((a)->z - (b)->z))
+    for (int i=0; i<2; i++) {
+        min = min2 = 10000;
+        for (int j=0; j<4; j++) {
+            dist = mydist(ps[j], ms[i]);
+            if (dist < min) {
+                min = dist;
+                nearest[1] = nearest[0];
+                nearest[0] = j;
+            }
+            else if (dist < min2) {
+                min2 = dist;
+                nearest[1] = j;
+            }
+        }
+    }
+#undef mydist
+
+    // find the nearest edge for both points
+    for (int i=0; i<2; i++) {
+        if ((ps[nearest[0]] == ps[0] && ps[nearest[1]] == ps[1]) || (ps[nearest[0]] == ps[1] && ps[nearest[1]] == ps[0]))
+            edge[i] = 1;
+        else if ((ps[nearest[0]] == ps[1] && ps[nearest[1]] == ps[3]) || (ps[nearest[0]] == ps[3] && ps[nearest[1]] == ps[1]))
+            edge[i] = 2;
+        else  if ((ps[nearest[0]] == ps[2] && ps[nearest[1]] == ps[3]) || (ps[nearest[0]] == ps[3] && ps[nearest[1]] == ps[2]))
+            edge[i] = 3;
+        else  if ((ps[nearest[0]] == ps[2] && ps[nearest[1]] == ps[0]) || (ps[nearest[0]] == ps[0] && ps[nearest[1]] == ps[2]))
+            edge[i] = 4;
+        else {
+            cout << "Problem cloth.cpp::bendEdge: edge[0]=" << edge[0] << ", edge[1]="<<edge[1]<<", nearest[0]=" <<nearest[0]<< " nearest[1]="<<nearest[1]<<"\n";
+            edge[0] = 1; // arb
+        }
+    }
+
+    // insert the bending points
+    // specification is st. the edge index have to be in ascendent order
+    if (edge[0] < edge[1]) {
+        int i = edge[0];
+        edge[0] = edge[1];
+        edge[1] = i;
+        MassPoint3D *p = ms[0];
+        ms[1] = ms[0];
+        ms[0] = p;
+    }
+    bendingPoints[bi][bj] = new MassPoint3D*[2];
+    bendingPoints[bi][bj][0] = ms[0];
+    bendingPoints[bi][bj][1] = ms[1];
+    bendingPointsCoding[bi][bj] = (1 << edge[0]) | (1 << edge[1]);
+    
+    cout << "TODO bendEdge in Cloth.cpp\n";
+}
+
+void Cloth::clearBend(int i, int j) {
+    int c = bendingPointsCoding[i][j];
+    switch (c) {
+    case 0: break;
+    case 1: delete bendingPoints[i][j][0];
+            delete bendingPoints[i][j];
+            break;
+    default: // there are 2 points
+            delete bendingPoints[i][j][0];
+            delete bendingPoints[i][j][1];
+            delete bendingPoints[i][j];
+    }
+    bendingPointsCoding[i][j] = 0;
+}
+#endif // CLOTH_BENDING
+
+
+
+/** Draw method ***********************
+ * 
+ */
 void Cloth::draw(){
 
 	#define SPRING_FRAME 0
@@ -157,6 +290,7 @@ void Cloth::draw(){
 		WorldObject::draw();
 	#else
 
+    
 	for(int i=0; i<segments; i++){
 	for(int j=0; j<segments; j++){
 
@@ -170,6 +304,8 @@ void Cloth::draw(){
 		glColor3f(1,1,1);
 		float mcolor[] = { 1, 1, 1, 1.0f };
 		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mcolor);	
+
+#if CLOTH_BENDING == 0
 		glBegin(GL_POLYGON);
 			glTexCoord2d(0.0, 0.0);
 			glVertex3f(a->x, a->y, a->z);
@@ -186,9 +322,330 @@ void Cloth::draw(){
 			glTexCoord2d(0.0, 1.0);
 			glVertex3f(c->x, c->y, c->z);
 		glEnd();
+#else 
+
+#define xratio_(p) (((p)->x - a->x) / (d->x - a->x))
+#define yratio_(p) (((p)->y - a->y) / (d->y - a->y))
+#define coords(p) (p)->x, (p)->y, (p)->z
+        int n = bendingPointsCoding[i][j];
+        // to draw a pyramid:
+        float xratio, yratio;
+        MassPoint3D* top;
+        // for the case of an edge:
+        float xratio1, yratio1, xratio2, yratio2;
+        MassPoint3D *b1, *b2;
+        if (n > 1) {
+            b1 = *bendingPoints[i][j];
+            b2 = *(bendingPoints[i][j] + 1);
+        }
+        switch (n) {
+        case 0: // draw two triangles
+    		glBegin(GL_POLYGON);
+    			glTexCoord2d(0.0, 0.0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(1.0, 0.0);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(0.0, 1.0);
+    			glVertex3f(coords(c));
+    		glEnd();
+    		glBegin(GL_POLYGON);
+    			glTexCoord2d(1.0, 1.0);
+    			glVertex3f(coords(d));
+    			glTexCoord2d(0.0, 1.0);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(1.0, 0.0);
+    			glVertex3f(coords(c));
+    		glEnd();
+            break;
+        case 1: // draw a pyramid to the bending point
+            top = *bendingPoints[i][j];
+            xratio = xratio_(top);
+            yratio = yratio_(top);
+
+            // a-c-top
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0.0, 0.0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(1.0, 0.0);
+    			glVertex3f(coords(c));
+    			glTexCoord2d(xratio, yratio);
+    			glVertex3f(coords(top));
+    		glEnd();
+            // a-b-top
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0.0, 0.0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(0.0, 1.0);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(xratio, yratio);
+    			glVertex3f(coords(top));
+    		glEnd();
+            // b-d-top
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0.0, 1.0);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(1.0, 1.0);
+    			glVertex3f(coords(d));
+    			glTexCoord2d(xratio, yratio);
+    			glVertex3f(coords(top));
+    		glEnd();
+            // c-d-top
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(1.0, 0.0);
+    			glVertex3f(coords(c));
+    			glTexCoord2d(1.0, 1.0);
+    			glVertex3f(coords(d));
+    			glTexCoord2d(xratio, yratio);
+    			glVertex3f(coords(top));
+    		glEnd();
+            break;
+
+        // The following cases are for when the tile is divided by an edge,
+        // we then want to fill 4 triangles or 2 rectangles, depending on
+        // the position of the bending points. We assume b1 is before b2
+        // in the 1234 order described below.
+        // encoding at (i,j) is to be:
+        // (0 i1 i2 i3 i4) in binary  where:
+        // i1 is 1 if a point is on the edge (i,j) - (i,j+1) = a-b
+        // i2 is 1 if a point is on the edge (i,j+1) - (i+1,j+1) = b-d
+        // i3 is 1 if a point is on the edge (i+1,j+1) - (i+1,j) = d-c
+        // i4 is 1 if a point is on the edge (i+1,j) - (i,j) = c-a
+
+            // TODO when 2 rectangles, still draw 4 triangles!
+        case 6: // i1, i2
+            xratio1 = 0;
+            yratio1 = yratio_(b1);
+            xratio2 = xratio_(b2);
+            yratio2 = 1;
+            // b - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,1);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    		glEnd();
+            // a - b1 - c
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(1,0);
+    			glVertex3f(coords(c));
+    		glEnd();
+            // c - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(1,0);
+    			glVertex3f(coords(c));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    		glEnd();
+            // b2 - c - d
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    			glTexCoord2d(1, 0);
+    			glVertex3f(coords(c));
+    			glTexCoord2d(1,1);
+    			glVertex3f(coords(d));
+    		glEnd();
+            break;
+        case 10: // i1, i3
+            xratio1 = 0;
+            yratio1 = yratio_(b1);
+            xratio2 = 1;
+            yratio2 = yratio_(b2);
+            // a - c - b2 - b1
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(1,0);
+    			glVertex3f(coords(c));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+            glEnd();
+            // b - d - b2 - b1
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,1);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(1,1);
+    			glVertex3f(coords(d));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+            glEnd();
+
+            break;
+        case 18: // i1, i4
+            xratio1 = 0;
+            yratio1 = yratio_(b1);//(b1->y - a->y) / (d->y - a->y);
+            xratio2 = xratio_(b2);//(b2->x - a->x) / (d->x - a->x);
+            yratio2 = 0;
+            // a - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    		glEnd();
+            // b - b1 - d
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,1);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(1,1);
+    			glVertex3f(coords(d));
+    		glEnd();
+            // d - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(1,1);
+    			glVertex3f(coords(d));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    		glEnd();
+            // b2 - c - d
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    			glTexCoord2d(1, 0);
+    			glVertex3f(coords(c));
+    			glTexCoord2d(1,1);
+    			glVertex3f(coords(d));
+    		glEnd();
+            break;
+        case 12: // i2, i3
+            xratio1 = xratio_(b1);
+            yratio1 = 1;
+            xratio2 = 1;
+            yratio2 = yratio_(b2);
+            // a - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    		glEnd();
+            // a - b1 - b
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(0,1);
+    			glVertex3f(coords(b));
+    		glEnd();
+            // d - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(1,1);
+    			glVertex3f(coords(d));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    		glEnd();
+            // b2 - c - a
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    			glTexCoord2d(1, 0);
+    			glVertex3f(coords(c));
+    			glTexCoord2d(0,0);
+    			glVertex3f(coords(a));
+    		glEnd();
+            break;
+        case 20: // i2, i4
+            xratio1 = xratio_(b1);
+            yratio1 = 0;
+            xratio2 = xratio_(b2);
+            yratio2 = 1;
+            // a - b - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(0,1);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+            glEnd();
+            // c - d - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(1,0);
+    			glVertex3f(coords(c));
+    			glTexCoord2d(1,1);
+    			glVertex3f(coords(d));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+            glEnd();
+
+            break;
+        case 24: // i3, i4
+            xratio1 = 1;
+            yratio1 = yratio_(b1);
+            xratio2 = xratio_(b2);
+            yratio2 = 0;
+            // b - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,1);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    		glEnd();
+            // a - b2 - b
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0,0);
+    			glVertex3f(coords(a));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    			glTexCoord2d(0,1);
+    			glVertex3f(coords(b));
+    		glEnd();
+            // c - b1 - b2
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(1,0);
+    			glVertex3f(coords(c));
+    			glTexCoord2d(xratio1, yratio1);
+    			glVertex3f(coords(b1));
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    		glEnd();
+            // b1 - b - d
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(xratio2, yratio2);
+    			glVertex3f(coords(b2));
+    			glTexCoord2d(1, 0);
+    			glVertex3f(coords(b));
+    			glTexCoord2d(0,0);
+    			glVertex3f(coords(d));
+    		glEnd();
+            break;
+       
+        
+        break;
+        }
+#endif
 		glDisable(GL_TEXTURE_2D);
-	}
-	}
+	} // end for j
+	} // end for i
 
 	#endif
 
