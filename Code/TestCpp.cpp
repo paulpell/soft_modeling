@@ -343,6 +343,7 @@ int openGLinit(int argc, char** argv){
 
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(keyboardSpecial);
+    return 0;
 }
 
 /**** Create Objects and run! ****/

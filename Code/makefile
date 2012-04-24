@@ -18,14 +18,15 @@ SRC = World3D.cpp Vertex3D.cpp Surface3D.cpp Keyboard.cpp Texture.cpp Camera.cpp
 LIBS = -lGL -lGLU -lglut -lrt
 EXEC = Space
 # automatic in $(CC)?
-CFLAGS = $(LIBS) -g -Wall
+DEBUG = -g # set to '' to remove debug
+CXXFLAGS = $(LIBS) $(DEBUG) -Wall 
 
 all: compile run	
 
 compile : objects main
 
 main: objects
-	$(CC) $(CFLAGS) $(OBJECTS) $(MAIN)  -o $(EXEC)
+	$(CC) $(CXXFLAGS)  $(OBJECTS) $(MAIN)  -o $(EXEC)
 
 objects: $(OBJECTS)
 
@@ -34,4 +35,5 @@ run:
 
 clean:
 	rm $(EXEC)
+	rm *.o
 #	rm -rf $(EXEC) *~
