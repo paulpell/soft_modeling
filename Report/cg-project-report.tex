@@ -80,12 +80,33 @@ $$-kx = ma$$
 In the so called spring model objects are modeled in such a way, that the respective mass points of the object are connected by springs. From the formula above one can imagine the behavior of the spring. If one point is moved due to an external force, it creates a force within the spring, which will pull it back to its original state.
 
 \subsection{Wireframe}
-In the wireframe representation of an object we can see where appropriate masspoints are. Edges between these points can be drawn and considered either as a plain edge (e.g. for visual effects) or as a spring, as above. Depending on how many springs and which distribution of mass points we use in an object different forces will be present and convey different stability and behavior to the object if forces are applied.
+In the wireframe representation of an object we can see edges and vertices of an object. In computer graphics this type of representation is very common and relates easily to the real world. In this representation one can see where appropriate masspoints are, namely the vertices of the wireframe. Edges between these points can be drawn and considered either as a plain edge (e.g. for visual effects) or as a spring, as above. Depending on how many springs and which distribution of mass points we use in an object different forces will be present and convey different stability and behavior to the object if forces are applied.
 %
 %
 %
 \section{Algorithm}
 As algorithm we simply use the formula described above. After computing the internal forces of a spring it applies these forces to its mass points. Each mass point will sum up all forces pressing it and therefore with a certain acceleration move over a distance specified by acceleration into time-difference since last frame. These computations are repeated for each time-step.
+
+\begin{figure}
+\centering
+In OpenGL method \textit{display()} do:
+\begin{verbatim}
+dt = getTimeDifference(); // timedelta since last frame
+for all obj in objects:
+        for all springs in obj:
+                springs.compute_force(dt, springs.start);
+                springs.compute_force(dt, springs.end);
+        end for
+        for all masspoint in obj:
+                masspoint.compute_velocity(dt);
+                masspoint.compute_newLocation(dt);
+                masspoint.apply_dampening(); // reduce velocity
+        end for
+        obj.draw();
+end for
+\end{verbatim}
+\caption{The pseudo code for our world physics}
+\end{figure}
 
 \section{Work Done}
 \subsection{A simple spring}
@@ -109,7 +130,7 @@ By simply chaining up several springs, one can create a soft object which will b
 \end{figure}
 
 \subsection{Cloth}
-After successful implementation of one-dimensional Spring-Model objects, we arrange the springs in a two-dimensional grid/net structure. Figure \ref{fig:cloth-grid} shows the arrangement of the springs shortly after the gravitation starts pulling the net to a great extend simulating a very flexible material. To achieve a more "stable" cloth we add diagonal connections between diagonal adjacent mass points, too. In order to visualize the cloth, for each rectangle of the gridmesh we draw two adjacent triangle polygons. This is following the approach of three-edged polygons, that is used in the wireframe model of many surfaces and objects. As not each material is so flexible like rubber, the spring coefficient can be increased to gain a stiffer cloth. Figure \ref{fig:cloth-stif} shows to cloth with different spring stiffness and an applied texture.
+After successful implementation of one-dimensional Spring-Model objects, we arrange the springs in a two-dimensional grid/net structure. Figure \ref{fig:cloth-grid} shows the arrangement of the springs shortly after the gravitation starts pulling the net to a great extend simulating a very flexible material. To achieve a more "stable" cloth we add diagonal connections between diagonal adjacent mass points, too. In order to visualize the cloth, for each rectangle of the gridmesh we draw two adjacent triangle polygons. This is following the approach of three-edged polygons, that is used in the wireframe model of many surfaces and objects. As not each material is so flexible like rubber, the spring coefficient can be increased to gain a stiffer cloth. Figure \ref{fig:cloth-stif} shows to cloth with different spring stiffness and an applied texture. The cloth is fixed at three edges and the last one is free to dangle around.
 
 \begin{figure}[h]
 \centering
