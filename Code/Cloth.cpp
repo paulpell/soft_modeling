@@ -76,13 +76,15 @@ void Cloth::init(MassPoint3D *start, int segments, float size, float singleMass)
 
 
 #if CLOTH_BENDING == 1
-    bendingPoints = new MassPoint3D***[segments];
+    edgeBendingPoints = new MassPoint3D***[segments];
+    middleBendingPoints = new MassPoint3D**[segments];
     bendingPointsCoding = new int*[segments];
     for (int i=0; i<segments; i++) {
-        bendingPoints[i] = new MassPoint3D**[segments];
+        edgeBendingPoints[i] = new MassPoint3D**[segments];
+        middleBendingPoints[i] = new MassPoint3D*[segments];
         bendingPointsCoding[i] = new int[segments];
         for (int j=0; j<segments; j++) {
-            bendingPoints[i][j] = NULL;
+            edgeBendingPoints[i][j] = new MassPoint3D*[2];
             bendingPointsCoding[i][j] = 0;
         }
     }
@@ -173,22 +175,21 @@ float Cloth::vecangle(float x1, float y1, float z1, float x2, float y2, float z2
 
 
 /** Bending of the cloth ************/
+
 #if CLOTH_BENDING == 1
 void Cloth::bendCorner(int i, int j, MassPoint3D* m) {
-    bendingPoints[i][j] = new MassPoint3D*[1];
-    bendingPoints[i][j][0] = m;
-    bendingPointsCoding[i][j] = 1;
+    middleBendingPoints[i][j] = m;
+    bendingPointsCoding[i][j] |= 1;
 }
 
-void Cloth::bendEdge(int bi, int bj, MassPoint3D* m1, MassPoint3D* m2) {
-    cout << " === Starting bendEdge\n";
+void Cloth::bendEdge(int bi, int bj, MassPoint3D* m1, MassPoint3D* m2, int edge[2]) {
     // encoding at (i,j) is to be:
     // (0 i1 i2 i3 i4) in binary  where:
     // i1 is 1 if a point is on the edge (i,j) - (i,j+1)
     // i2 is 1 if a point is on the edge (i,j+1) - (i+1,j+1)
     // i3 is 1 if a point is on the edge (i+1,j+1) - (i+1,j)
     // i4 is 1 if a point is on the edge (i+1,j) - (i,j)
-    MassPoint3D *ps[4] = { meshNet[bi][bj],
+    /*MassPoint3D *ps[4] = { meshNet[bi][bj],
                            meshNet[bi][bj+1],
                            meshNet[bi+1][bj],
                            meshNet[bi+1][bj+1]};
@@ -243,19 +244,19 @@ void Cloth::bendEdge(int bi, int bj, MassPoint3D* m1, MassPoint3D* m2) {
         }
     }
 
+    */
     // insert the bending points
     // specification is st. the edge index have to be in ascendent order
     if (edge[0] < edge[1]) {
         int i = edge[0];
         edge[0] = edge[1];
         edge[1] = i;
-        MassPoint3D *p = ms[0];
-        ms[1] = ms[0];
-        ms[0] = p;
+        MassPoint3D *p = m1;
+        m1 = m2;
+        m2 = p;
     }
-    bendingPoints[bi][bj] = new MassPoint3D*[2];
-    bendingPoints[bi][bj][0] = ms[0];
-    bendingPoints[bi][bj][1] = ms[1];
+    edgeBendingPoints[bi][bj][0] = m1;
+    edgeBendingPoints[bi][bj][1] = m2;
     bendingPointsCoding[bi][bj] = (1 << edge[0]) | (1 << edge[1]);
     
     cout << "TODO bendEdge in Cloth.cpp\n";
@@ -263,15 +264,12 @@ void Cloth::bendEdge(int bi, int bj, MassPoint3D* m1, MassPoint3D* m2) {
 
 void Cloth::clearBend(int i, int j) {
     int c = bendingPointsCoding[i][j];
-    switch (c) {
-    case 0: break;
-    case 1: delete bendingPoints[i][j][0];
-            delete bendingPoints[i][j];
-            break;
-    default: // there are 2 points
-            delete bendingPoints[i][j][0];
-            delete bendingPoints[i][j][1];
-            delete bendingPoints[i][j];
+    if (c & 1) {
+        delete middleBendingPoints[i][j];
+    }
+    if (c > 1) { // edgeBendingPoints contains 2 elmts
+        delete edgeBendingPoints[i][j][0];
+        delete edgeBendingPoints[i][j][1];
     }
     bendingPointsCoding[i][j] = 0;
 }
@@ -329,17 +327,24 @@ void Cloth::draw(){
 #define coords(p) (p)->x, (p)->y, (p)->z
         int n = bendingPointsCoding[i][j];
         // to draw a pyramid:
-        float xratio, yratio;
+        float xratioTop, yratioTop;
         MassPoint3D* top;
+        if (n & 1) {
+            top = middleBendingPoints[i][j];
+            xratioTop = xratio_(top);
+            yratioTop = yratio_(top);
+        }
+
         // for the case of an edge:
         float xratio1, yratio1, xratio2, yratio2;
         MassPoint3D *b1, *b2;
         if (n > 1) {
-            b1 = *bendingPoints[i][j];
-            b2 = *(bendingPoints[i][j] + 1);
+            b1 = *edgeBendingPoints[i][j];
+            b2 = *(edgeBendingPoints[i][j] + 1);
         }
-        switch (n) {
-        case 0: // draw two triangles
+        //switch (n) {
+        //case 0: 
+        if (n == 0) {// draw two triangles
     		glBegin(GL_POLYGON);
     			glTexCoord2d(0.0, 0.0);
     			glVertex3f(coords(a));
@@ -356,52 +361,50 @@ void Cloth::draw(){
     			glTexCoord2d(1.0, 0.0);
     			glVertex3f(coords(c));
     		glEnd();
-            break;
-        case 1: // draw a pyramid to the bending point
-            top = *bendingPoints[i][j];
-            xratio = xratio_(top);
-            yratio = yratio_(top);
-
-            // a-c-top
-            glBegin(GL_POLYGON);
-    			glTexCoord2d(0.0, 0.0);
-    			glVertex3f(coords(a));
-    			glTexCoord2d(1.0, 0.0);
-    			glVertex3f(coords(c));
-    			glTexCoord2d(xratio, yratio);
-    			glVertex3f(coords(top));
-    		glEnd();
+        }
+        //    break;
+        //case 1: 
+        if (n == 1) { // simple pyramid
             // a-b-top
             glBegin(GL_POLYGON);
     			glTexCoord2d(0.0, 0.0);
     			glVertex3f(coords(a));
     			glTexCoord2d(0.0, 1.0);
     			glVertex3f(coords(b));
-    			glTexCoord2d(xratio, yratio);
+    			glTexCoord2d(xratioTop, yratioTop);
     			glVertex3f(coords(top));
     		glEnd();
             // b-d-top
             glBegin(GL_POLYGON);
-    			glTexCoord2d(0.0, 1.0);
-    			glVertex3f(coords(b));
-    			glTexCoord2d(1.0, 1.0);
-    			glVertex3f(coords(d));
-    			glTexCoord2d(xratio, yratio);
-    			glVertex3f(coords(top));
-    		glEnd();
+                glTexCoord2d(0.0, 1.0);
+                glVertex3f(coords(b));
+                glTexCoord2d(1.0, 1.0);
+                glVertex3f(coords(d));
+                glTexCoord2d(xratioTop, yratioTop);
+                glVertex3f(coords(top));
+            glEnd();
             // c-d-top
             glBegin(GL_POLYGON);
+    	    	glTexCoord2d(1.0, 0.0);
+    	    	glVertex3f(coords(c));
+    	    	glTexCoord2d(1.0, 1.0);
+    	    	glVertex3f(coords(d));
+    	    	glTexCoord2d(xratioTop, yratioTop);
+    	    	glVertex3f(coords(top));
+    	    glEnd();
+            // a-c-top
+            glBegin(GL_POLYGON);
+    			glTexCoord2d(0.0, 0.0);
+    			glVertex3f(coords(a));
     			glTexCoord2d(1.0, 0.0);
     			glVertex3f(coords(c));
-    			glTexCoord2d(1.0, 1.0);
-    			glVertex3f(coords(d));
-    			glTexCoord2d(xratio, yratio);
+    			glTexCoord2d(xratioTop, yratioTop);
     			glVertex3f(coords(top));
     		glEnd();
-            break;
-
+        }
+        
         // The following cases are for when the tile is divided by an edge,
-        // we then want to fill 4 triangles or 2 rectangles, depending on
+        // we then want to fill 4 or 5 triangles, depending on
         // the position of the bending points. We assume b1 is before b2
         // in the 1234 order described below.
         // encoding at (i,j) is to be:
@@ -411,8 +414,153 @@ void Cloth::draw(){
         // i3 is 1 if a point is on the edge (i+1,j+1) - (i+1,j) = d-c
         // i4 is 1 if a point is on the edge (i+1,j) - (i,j) = c-a
 
-            // TODO when 2 rectangles, still draw 4 triangles!
-        case 6: // i1, i2
+
+        else if (n & 1) {
+            // draw a pyramid to the bending point with 
+            bool usedB1 = false;
+            // a-b-top
+            if (n & 2) {
+                xratio1 = 0;
+                yratio1 = yratio_(b1);
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(0.0, 0.0);
+    		    	glVertex3f(coords(a));
+    		    	glTexCoord2d(xratio1, yratio1);
+    		    	glVertex3f(coords(b1));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(xratio1, yratio1);
+    		    	glVertex3f(coords(b1));
+    		    	glTexCoord2d(0.0, 1.0);
+    		    	glVertex3f(coords(b));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+                usedB1 = true;
+            }
+            else {
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(0.0, 0.0);
+    		    	glVertex3f(coords(a));
+    		    	glTexCoord2d(0.0, 1.0);
+    		    	glVertex3f(coords(b));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+            }
+            // b-d-top
+            if (n & 4) {
+                MassPoint3D *tmp;
+                if (!usedB1) {
+                    tmp = b1;
+                    usedB1 = true;
+                }
+                else tmp = b2;
+
+                float xratioT = xratio_(tmp),
+                      yratioT = yratio_(tmp);
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(0.0, 1.0);
+    		    	glVertex3f(coords(b));
+    		    	glTexCoord2d(xratioT, yratioT);
+    		    	glVertex3f(coords(tmp));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(xratioT, yratioT);
+    		    	glVertex3f(coords(tmp));
+    		    	glTexCoord2d(1.0, 1.0);
+    		    	glVertex3f(coords(d));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+            }
+            else {
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(0.0, 1.0);
+    		    	glVertex3f(coords(b));
+    		    	glTexCoord2d(1.0, 1.0);
+    		    	glVertex3f(coords(d));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+            }
+            // c-d-top
+            if (n & 8) {
+                MassPoint3D *tmp;
+                if (!usedB1) {
+                    tmp = b1;
+                    usedB1 = true;
+                }
+                else tmp = b2;
+                float xratioT = xratio_(tmp),
+                      yratioT = yratio_(tmp);
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(1.0, 0.0);
+    		    	glVertex3f(coords(c));
+    		    	glTexCoord2d(xratioT, yratioT);
+    		    	glVertex3f(coords(tmp));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(xratioT, yratioT);
+    		    	glVertex3f(coords(tmp));
+    		    	glTexCoord2d(1.0, 1.0);
+    		    	glVertex3f(coords(d));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+            }
+            else {
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(1.0, 0.0);
+    		    	glVertex3f(coords(c));
+    		    	glTexCoord2d(1.0, 1.0);
+    		    	glVertex3f(coords(d));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+            }
+            // a-c-top
+            if (n & 16) {
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(0.0, 0.0);
+    		    	glVertex3f(coords(a));
+    		    	glTexCoord2d(xratio2, yratio2);
+    		    	glVertex3f(coords(b2));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(xratio2, yratio2);
+    		    	glVertex3f(coords(b2));
+    		    	glTexCoord2d(1.0, 0.0);
+    		    	glVertex3f(coords(c));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+            }
+            else {
+                glBegin(GL_POLYGON);
+    		    	glTexCoord2d(0.0, 0.0);
+    		    	glVertex3f(coords(a));
+    		    	glTexCoord2d(1.0, 0.0);
+    		    	glVertex3f(coords(c));
+    		    	glTexCoord2d(xratioTop, yratioTop);
+    		    	glVertex3f(coords(top));
+    		    glEnd();
+            }
+        }
+        //    break;
+
+                    // TODO when 2 rectangles, still draw 4 triangles!
+        //case 6: 
+        // i1, i2
+        else if (n == 6) {
             xratio1 = 0;
             yratio1 = yratio_(b1);
             xratio2 = xratio_(b2);
@@ -453,8 +601,11 @@ void Cloth::draw(){
     			glTexCoord2d(1,1);
     			glVertex3f(coords(d));
     		glEnd();
-            break;
-        case 10: // i1, i3
+        }
+        //    break;
+        //case 10:
+        // i1, i3
+        else if (n == 10) {
             xratio1 = 0;
             yratio1 = yratio_(b1);
             xratio2 = 1;
@@ -481,9 +632,11 @@ void Cloth::draw(){
     			glTexCoord2d(xratio1, yratio1);
     			glVertex3f(coords(b1));
             glEnd();
-
-            break;
-        case 18: // i1, i4
+        }
+        //    break;
+        //case 18: 
+        // i1, i4
+        else if (n == 18) {
             xratio1 = 0;
             yratio1 = yratio_(b1);//(b1->y - a->y) / (d->y - a->y);
             xratio2 = xratio_(b2);//(b2->x - a->x) / (d->x - a->x);
@@ -524,8 +677,11 @@ void Cloth::draw(){
     			glTexCoord2d(1,1);
     			glVertex3f(coords(d));
     		glEnd();
-            break;
-        case 12: // i2, i3
+        }
+        //    break;
+        //case 12:
+        // i2, i3
+        else if (n == 12) {
             xratio1 = xratio_(b1);
             yratio1 = 1;
             xratio2 = 1;
@@ -566,8 +722,11 @@ void Cloth::draw(){
     			glTexCoord2d(0,0);
     			glVertex3f(coords(a));
     		glEnd();
-            break;
-        case 20: // i2, i4
+        }
+        //    break;
+        //case 20:
+        // i2, i4
+        else if (n == 20) {
             xratio1 = xratio_(b1);
             yratio1 = 0;
             xratio2 = xratio_(b2);
@@ -594,9 +753,11 @@ void Cloth::draw(){
     			glTexCoord2d(xratio2, yratio2);
     			glVertex3f(coords(b2));
             glEnd();
-
-            break;
-        case 24: // i3, i4
+        }
+        //    break;
+        //case 24:
+        // i3, i4
+        else if (n == 24) {
             xratio1 = 1;
             yratio1 = yratio_(b1);
             xratio2 = xratio_(b2);
@@ -637,11 +798,11 @@ void Cloth::draw(){
     			glTexCoord2d(0,0);
     			glVertex3f(coords(d));
     		glEnd();
-            break;
-       
-        
-        break;
+           // break;
         }
+        
+        //break;
+        //}
 #endif
 		glDisable(GL_TEXTURE_2D);
 	} // end for j

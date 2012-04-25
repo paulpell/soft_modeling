@@ -36,7 +36,7 @@ public:
 #if CLOTH_BENDING
     //void setBendings(int i, int j, MassPoint3D**);
     void bendCorner(int i, int j, MassPoint3D*);
-    void bendEdge(int i, int j, MassPoint3D*, MassPoint3D*);
+    void bendEdge(int i, int j, MassPoint3D*, MassPoint3D*, int[2]);
     void clearBend(int i, int j);
 #endif
 	// sry nicht nice
@@ -51,15 +51,16 @@ private:
 	void addSprings();
 	MassPoint3D*** meshNet; //2d array of pointers
 #if CLOTH_BENDING == 1
-    MassPoint3D**** bendingPoints; // 2d arr which can hold 0,1 or 2 MassPoints
     // bending points can be added under these conditions:
-    // one tile is added one point if it has hit a corner
-    // one tile is divided in two by collision with an edge
+    // if a tile hits a corner, there might be upto 3 bending points: the corner itself,
+    // and the two other end points for the edges
+    // Or one tile is divided in two by collision with an edge.
     // To simplify at draw time the coded value at [i][j] is:
-    // 0 -- no point
-    // 1 -- a single point
-    // x -- with two points, see bendEdge() in the .cpp for the details
+    // the first bit is 0 or 1, depending if there is a corner 
+    // the remaining bits are encoded according to Cloth.h
     int **bendingPointsCoding;
+    MassPoint3D*** middleBendingPoints; // 2d arr of pointers, to either 0 or 1 elmt
+    MassPoint3D**** edgeBendingPoints; // 2d arr which can hold 0,1 or 2 MassPoints
 #endif
 
 	// 
