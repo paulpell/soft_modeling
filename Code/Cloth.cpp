@@ -26,7 +26,7 @@ Cloth::Cloth(MassPoint3D* start){
 	// properties of rope:
 	segments = 8; // must be at least 1 !!
 	segsize = 2; // seglength without stress
-	hardness = 4; // je dicker das seil desto fester :D
+	hardness = 8; // je dicker das seil desto fester :D
 
 	// adding points to cloth mesh
 	int x = start->x;
@@ -143,7 +143,7 @@ float Cloth::vecangle(float x1, float y1, float z1, float x2, float y2, float z2
 
 void Cloth::draw(){
 
-	#define SPRING_FRAME 0
+	#define SPRING_FRAME 1
 
 	#if SPRING_FRAME
 		WorldObject::draw();
