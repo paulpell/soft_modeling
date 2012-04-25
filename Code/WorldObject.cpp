@@ -10,7 +10,7 @@ void WorldObject::timeStep(float time){
     
 
 	// slows down [not by reducing time, BUT reducing forces!]
-	time = time / .7;
+	time = time / 0.7;
 
 	// update all the internal spring forces
 	list<Spring*>::iterator it, end = springList.end();

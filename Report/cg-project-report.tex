@@ -63,10 +63,18 @@ When modeling the world solid objects such as e.g. a cube have clearly defined s
 There have been several models developed for modeling soft objects. The following paper will focus on the spring model approach described by \cite{LSCS} and \cite{hair}\cite{gama}.\\[1em]
 %
 \subsection{Spring}
-A spring is a mechanical device, that is able to store and release kinetic energy. With given material properties a spring can be bent and twisted, then kept in this state until the bending force is released and the spring will return to its original state. As a mathematical approximation of the real world spring there is the very simple rule called \textit{Hooke's law}:
+A spring is a mechanical device, that is able to store and release kinetic energy (Figure \ref{fig:spring-real}). With given material properties a spring can be bent and twisted, then kept in this state until the bending force is released and the spring will return to its original state. As a mathematical approximation of the real world spring there is the very simple rule called \textit{Hooke's law}:
 $$F=-kx$$
 Where the force $F$ existing between the two ends of the spring is equal to the difference of displacement $x$ from its original state into a material or force constant $k$. If a spring is changed in its length, then at the both ends a mass $m$ will be moved with the acceleration $a$:
 $$-kx = ma$$
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.3]{realspring.jpg}
+\includegraphics[scale=0.7]{spring.jpg}
+\caption{A spring from the real world and the theory.}
+\label{fig:spring-real}
+\end{figure}
 
 \subsection{Spring Model}
 In the so called spring model objects are modeled in such a way, that the respective mass points of the object are connected by springs. From the formula above one can imagine the behavior of the spring. If one point is moved due to an external force, it creates a force within the spring, which will pull it back to its original state.
@@ -80,10 +88,25 @@ In the wireframe representation of an object we can see where appropriate masspo
 As algorithm we simply use the formula described above. After computing the internal forces of a spring it applies these forces to its mass points. Each mass point will sum up all forces pressing it and therefore with a certain acceleration move over a distance specified by acceleration into time-difference since last frame. These computations are repeated for each time-step.
 
 \section{Work Done}
-\subsection{Spring}
-A simple spring consists of two mass points at each end. If we position the spring in a horizontal plane and apply a force downwards on one end, the length of the spring will increase and internally the spring will compute a inward bound force, which pulls the string back to his original length. Has the spring reached his original length, the movement pulling it back has not vanished and the spring will compress, hence yielding a relaxing force again. To prevent movement until infinity we add a dampening constant which will slowly bring the contraction-expansion cycle to an end.
+\subsection{A simple spring}
+A simple spring consists of two mass points at each end. If we position the spring in a horizontal plane and apply a force downwards on one end, the length of the spring will increase and internally the spring will compute a inward bound force, which pulls the string back to his original length. Has the spring reached his original length, the movement pulling it back has not vanished and the spring will compress, hence yielding a relaxing force again. To prevent movement until infinity we add a dampening constant which will slowly bring the contraction-expansion cycle to an end. In Figure \ref{fig:spring-oszi} the movement of a simple spring under the influence of gravity is shown. Where in a vertical starting position the spring only contracts and expands, it starts swinging and contraction in the horizontal starting position.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{spring-oszi.jpg}
+\caption{Oscillation of a spring start position vertical (left) and horizontal (right).}
+\label{fig:spring-oszi}
+\end{figure}
+
 \subsection{Rope}
-By simply chaining up several springs, one can create a soft object which will behave like a rope. With four to six segments and a fixed endpoint the rope develops a realistic behavior under the influence of gravitational down-pull. To enhance the viewers experience we paint a textured GLUT cylinder around the single elements of the spline.
+By simply chaining up several springs, one can create a soft object which will behave like a rope. With four to six segments and a fixed endpoint the rope develops a realistic behavior under the influence of gravitational down-pull. To enhance the viewers experience (Figure \ref{fig:rope}) we paint a textured GLUT cylinder around the single elements of the spline. Note that a thicker rope swings not as high because of its additional weight and stiffness.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{rope.jpg}
+\caption{Ropes with different flexibility (=as a function of thickness)}
+\label{fig:rope}
+\end{figure}
 
 \subsection{Cloth}
 After successful implementation of one-dimensional Spring-Model objects, we arrange the springs in a two-dimensional grid/net structure. Figure \ref{fig:cloth-grid} shows the arrangement of the springs shortly after the gravitation starts pulling the net to a great extend simulating a very flexible material. To achieve a more "stable" cloth we add diagonal connections between diagonal adjacent mass points, too. In order to visualize the cloth, for each rectangle of the gridmesh we draw two adjacent triangle polygons. This is following the approach of three-edged polygons, that is used in the wireframe model of many surfaces and objects. As not each material is so flexible like rubber, the spring coefficient can be increased to gain a stiffer cloth. Figure \ref{fig:cloth-stif} shows to cloth with different spring stiffness and an applied texture.
@@ -103,7 +126,7 @@ After successful implementation of one-dimensional Spring-Model objects, we arra
 \end{figure}
 
 
-\subsection{Jelly}
+\subsection{Sponge}
 The last dimension is demonstrated with a soft object which actually has a volume. We arrange our springs in a three-dimensional grid/cube. The behavior of the cube looks not very realistic, because the volume can actually implode. We countered this "collapsing"-effect with springs within the volume itself to enhance stability, which is not guaranteed by springs only placed on the surface of the object.
 \subsection{Rendering}
 Using the OpenGL framework for C++ we implemented a visualization of the effects described above. With texturing and lighting the soft objects we achieve a realistic scene.
@@ -151,7 +174,6 @@ With a very simple physical equation the Spring Mass Model achieves a very reali
 \nocite{gama}
 \nocite{wiki}
 \nocite{hair}
-\nocite{pyGL}
 %\nocite{}
 \bibliographystyle{alpha}
 \bibliography{gc-bib}

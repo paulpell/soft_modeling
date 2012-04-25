@@ -195,10 +195,10 @@ void display(void){
 
 	theFloor.draw();
 	myRope.draw();
-	myJelly.draw();
-	myJelly2.draw();
-	myCloth.draw();
-	myFlag.draw();
+	//myJelly.draw();
+	//myJelly2.draw();
+	//myCloth.draw();
+	//myFlag.draw();
 
 
 	// Don't forget to swap the buffers...
