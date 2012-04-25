@@ -1,5 +1,5 @@
 #include "ClothOnBox.h"
-
+#include "arith.h"
 
 // in the old way, a force was exerted by the box on the nearby massPoints
 #define COLLIDE_OLD_WAY 0
@@ -8,7 +8,7 @@
 ClothOnBox::ClothOnBox(){};
 
 ClothOnBox::ClothOnBox (float x, float y, float z) {
-        int segments = 20;
+        int segments = 5;
         float size = 5;
         box = NULL;
 		cloth = new Cloth(new MassPoint3D(x - size/2, y + size + 3, z-size/2), segments, 2*size);
@@ -146,8 +146,9 @@ void ClothOnBox::timeStep(float dt) {
 
 #else // COLLIDE_OLD_WAY
 
+#define boxpt(i,j,k) box->mesh[i][j][k] 
 
-    // let ths points collide if they enter the box
+    // let the points collide if they enter the box
     for (int i=0; i<segments+1; i++) {
         for (int j=0; j<segments+1; j++) {
             if (box->isPointInside(pt(i,j))) {
@@ -156,14 +157,18 @@ void ClothOnBox::timeStep(float dt) {
         }
     }
 
-    MassPoint3D *m1, *m2;
     float mass = 4;
-    
+    MassPoint3D *m1 = new MassPoint3D(0,0,0, mass),
+                *m2 = new MassPoint3D(0,0,0, mass);
     for (int i=0; i<segments; i++) {
         for (int j=0; j<segments; j++) {
 
             cloth->clearBend(i,j);
 
+
+            // let some helpers be defined here
+            MassPoint3D *ms[4] = 
+                    {pt(i,j), pt(i,j+1), pt(i+1,j), pt(i+1,j+1)};
 
             MassPoint3D *a = pt(i,j), *b = pt(i, j+1),
                       *c = pt(i+1, j), *d = pt(i+1, j+1);
@@ -189,8 +194,12 @@ void ClothOnBox::timeStep(float dt) {
                         cloth->bendCorner(i,j,m1);
                     }
                     else if (!(pos1 & 16 || pos1 & 32 || pos2 & 16 || pos2 & 32)) { // both inside the box wrt to z
-                        m1 = new MassPoint3D(basex, basey, (a->z + b->z) /2, mass);
-                        m2 = new MassPoint3D(basex, basey, (c->z + d->z) / 2, mass);
+                        //m1 = new MassPoint3D(basex, basey, (a->z + b->z) /2, mass);
+                        //m2 = new MassPoint3D(basex, basey, (c->z + d->z) / 2, mass);
+                        m1 = new MassPoint3D(0,0,0,mass);
+                        m2 = new MassPoint3D(0,0,0,mass);
+                        LineLineIntersect(boxpt(0,0,0), boxpt(0,0,1), a, c, m1);
+                        LineLineIntersect(boxpt(0,0,0), boxpt(0,0,1), b, d, m2);
                         cloth->bendEdge(i, j, m1, m2);
                     }
                 }
@@ -205,8 +214,12 @@ void ClothOnBox::timeStep(float dt) {
                         cloth->bendCorner(i,j,m1);
                     }
                     else if (!(pos1 & 16 || pos1 & 32 || pos2 & 16 || pos2 & 32)){ // both inside the box wrt to z
-                        m1 = new MassPoint3D(basex, basey + size, (a->z + b->z) /2, mass);
-                        m2 = new MassPoint3D(basex, basey + size, (c->z + d->z) / 2, mass);
+                        //m1 = new MassPoint3D(basex, basey + size, (a->z + b->z) /2, mass);
+                        //m2 = new MassPoint3D(basex, basey + size, (c->z + d->z) / 2, mass);
+                        m1 = new MassPoint3D(0,0,0,mass);
+                        m2 = new MassPoint3D(0,0,0,mass);
+                        LineLineIntersect(boxpt(0,1,0), boxpt(0,1,1), a, c, m1);
+                        LineLineIntersect(boxpt(0,1,0), boxpt(0,1,1), b, d, m2);
                         cloth->bendEdge(i, j, m1, m2);
                     }
                 }
@@ -220,9 +233,9 @@ void ClothOnBox::timeStep(float dt) {
                         cloth->bendCorner(i,j,m1);
                     }
                     else if (!(pos1 & 16 || pos1 & 32 || pos2 & 16 || pos2 & 32)){ // both inside the box wrt to z
-                        m1 = new MassPoint3D(basex, basey + size, (a->z + b->z) /2, mass);
-                        m2 = new MassPoint3D(basex, basey + size, (c->z + d->z) / 2, mass);
-                        cloth->bendEdge(i, j, m1, m2);
+                        //m1 = new MassPoint3D(basex, basey + size, (a->z + b->z) /2, mass);
+                        //m2 = new MassPoint3D(basex, basey + size, (c->z + d->z) / 2, mass);
+                        //cloth->bendEdge(i, j, m1, m2);
                     }
                 }
             }
@@ -238,8 +251,12 @@ void ClothOnBox::timeStep(float dt) {
                         cloth->bendCorner(i,j,m1);
                     }
                     else if (!(pos1 & 16 || pos1 & 32 || pos2 & 16 || pos2 & 32)){ // both inside the box wrt to z
-                        m1 = new MassPoint3D(basex + size, basey, (a->z + b->z) /2, mass);
-                        m2 = new MassPoint3D(basex + size, basey, (c->z + d->z) / 2, mass);
+                        //m1 = new MassPoint3D(basex + size, basey, (a->z + b->z) /2, mass);
+                        //m2 = new MassPoint3D(basex + size, basey, (c->z + d->z) / 2, mass);
+                        m1 = new MassPoint3D(0,0,0,mass);
+                        m2 = new MassPoint3D(0,0,0,mass);
+                        LineLineIntersect(boxpt(1,0,0), boxpt(1,0,1), a, c, m1);
+                        LineLineIntersect(boxpt(1,0,0), boxpt(1,0,1), b, d, m2);
                         cloth->bendEdge(i, j, m1, m2);
                     }
                 }
@@ -254,8 +271,12 @@ void ClothOnBox::timeStep(float dt) {
                         cloth->bendCorner(i,j,m1);
                     }
                     else if (!(pos1 & 16 || pos1 & 32 || pos2 & 16 || pos2 & 32)){ // both inside the box wrt to z
-                        m1 = new MassPoint3D(basex + size, basey + size, (a->z + b->z) /2, mass);
-                        m2 = new MassPoint3D(basex + size, basey + size, (c->z + d->z) / 2, mass);
+                        //m1 = new MassPoint3D(basex + size, basey + size, (a->z + b->z) /2, mass);
+                        //m2 = new MassPoint3D(basex + size, basey + size, (c->z + d->z) / 2, mass);
+                        m1 = new MassPoint3D(0,0,0,mass);
+                        m2 = new MassPoint3D(0,0,0,mass);
+                        LineLineIntersect(boxpt(1,1,0), boxpt(1,1,1), a, c, m1);
+                        LineLineIntersect(boxpt(1,1,0), boxpt(1,1,1), b, d, m2);
                         cloth->bendEdge(i, j, m1, m2);
                     }
                 }
@@ -269,32 +290,48 @@ void ClothOnBox::timeStep(float dt) {
                         cloth->bendCorner(i,j,m1);
                     }
                     else if (!(pos1 & 16 || pos1 & 32 || pos2 & 16 || pos2 & 32)) { // both inside the box wrt to z
-                        m1 = new MassPoint3D(basex + size, basey + size, (a->z + b->z) /2, mass);
-                        m2 = new MassPoint3D(basex + size, basey + size, (c->z + d->z) / 2, mass);
-                        cloth->bendEdge(i, j, m1, m2);
+                        //m1 = new MassPoint3D(basex + size, basey + size, (a->z + b->z) /2, mass);
+                        //m2 = new MassPoint3D(basex + size, basey + size, (c->z + d->z) / 2, mass);
+                        //cloth->bendEdge(i, j, m1, m2);
                     }
                 }
             }
 
             else if(!(pos1 & 1 || pos1 & 2 || pos2 & 1 || pos2 & 2)) { // both inside the box wrt x
                 if (((pos1 & 4) ^ (pos2 & 4)) && ((pos1 & 16) ^ (pos2 & 16))) {
-                    m1 = new MassPoint3D((a->x + b->x) / 2., basey, basez, mass);
-                    m2 = new MassPoint3D((c->x + d->x) / 2., basey, basez, mass);
+                    //m1 = new MassPoint3D((a->x + b->x) / 2., basey, basez, mass);
+                    //m2 = new MassPoint3D((c->x + d->x) / 2., basey, basez, mass);
+                    m1 = new MassPoint3D(0,0,0,mass);
+                    m2 = new MassPoint3D(0,0,0,mass);
+                    LineLineIntersect(boxpt(0,0,0), boxpt(1,0,0), a, c, m1);
+                    LineLineIntersect(boxpt(0,0,0), boxpt(1,0,0), b, d, m2);
                     cloth->bendEdge(i, j, m1, m2);
                 }
                 else if (((pos1 & 4) ^ (pos2 & 4)) && ((pos1 & 32) ^ (pos2 & 32))) {
-                    m1 = new MassPoint3D((a->x + b->x) / 2., basey, basez + size, mass);
-                    m2 = new MassPoint3D((c->x + d->x) / 2., basey, basez + size, mass);
+                    //m1 = new MassPoint3D((a->x + b->x) / 2., basey, basez + size, mass);
+                    //m2 = new MassPoint3D((c->x + d->x) / 2., basey, basez + size, mass);
+                    m1 = new MassPoint3D(0,0,0,mass);
+                    m2 = new MassPoint3D(0,0,0,mass);
+                    LineLineIntersect(boxpt(0,0,1), boxpt(1,0,1), a, c, m1);
+                    LineLineIntersect(boxpt(0,0,1), boxpt(1,0,1), b, d, m2);
                     cloth->bendEdge(i, j, m1, m2);
                 }
                 else if (((pos1 & 8) ^ (pos2 & 8)) && ((pos1 & 16) ^ (pos2 & 16))) {
-                    m1 = new MassPoint3D((a->x + b->x) / 2., basey + size, basez, mass);
-                    m2 = new MassPoint3D((c->x + d->x) / 2., basey + size, basez, mass);
+                    //m1 = new MassPoint3D((a->x + b->x) / 2., basey + size, basez, mass);
+                    //m2 = new MassPoint3D((c->x + d->x) / 2., basey + size, basez, mass);
+                    m1 = new MassPoint3D(0,0,0,mass);
+                    m2 = new MassPoint3D(0,0,0,mass);
+                    LineLineIntersect(boxpt(0,1,0), boxpt(1,1,0), a, c, m1);
+                    LineLineIntersect(boxpt(0,1,0), boxpt(1,1,0), b, d, m2);
                     cloth->bendEdge(i, j, m1, m2);
                 }
                 else if (((pos1 & 8) ^ (pos2 & 8)) && ((pos1 & 32) ^ (pos2 & 32))) {
-                    m1 = new MassPoint3D((a->x + b->x) / 2., basey + size, basez + size, mass);
-                    m2 = new MassPoint3D((c->x + d->x) / 2., basey + size, basez + size, mass);
+                    //m1 = new MassPoint3D((a->x + b->x) / 2., basey + size, basez + size, mass);
+                    //m2 = new MassPoint3D((c->x + d->x) / 2., basey + size, basez + size, mass);
+                    m1 = new MassPoint3D(0,0,0,mass);
+                    m2 = new MassPoint3D(0,0,0,mass);
+                    LineLineIntersect(boxpt(0,1,1), boxpt(1,1,1), a, c, m1);
+                    LineLineIntersect(boxpt(0,1,1), boxpt(1,1,1), b, d, m2);
                     cloth->bendEdge(i, j, m1, m2);
                 }
             }
